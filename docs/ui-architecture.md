@@ -28,7 +28,7 @@
 | UI Primitives     | shadcn/ui (New York style) on Radix UI              |
 | Icons             | Lucide React                                        |
 | Charts            | Recharts                                            |
-| State + Streaming | Custom React hooks (`useScenarioRuntime`)           |
+| State + Streaming | Custom React hooks (`useBackendRuntime` for SSE, `useScenarioRuntime` for mock fallback) |
 | Package Manager   | Bun                                                 |
 
 ---
@@ -143,17 +143,21 @@ Fonts are loaded from Google Fonts in `__root.tsx`:
 
 1. **Brand header** — "Fair**Lens**" in 34px with purple glow on the "Lens" portion, plus tagline "AI that checks its own blind spots" and tech stack chips (Gemini 2.5 Flash, Google ADK, Parallel Agents).
 
-2. **Preset candidate selector** — Three pill buttons (Alex Kim, Jordan Lee, Sam Patel) with active state indicated by solid purple fill. Each preset auto-fills the profile, target level, and panel mode. A contextual blurb below describes the bias scenario each candidate triggers (e.g., "pedigree bias", "affinity bias").
+2. **Tabbed Layout Selector:**
+   * **JSON Profile Tab:** Manual editing of candidate JSON parameters and access to preset candidate selectors.
+   * **Upload PDF Resume Tab:** Drag-and-drop or click-to-browse PDF file upload. Calls the backend `/parse-resume` endpoint to extract candidate structure and auto-populates the JSON Profile parameters.
 
-3. **Candidate profile textarea** — `12-row` monospace textarea pre-filled with JSON. Editable. Focus highlights border in brand purple.
+3. **Preset candidate selector (under JSON Profile tab)** — Three pill buttons (Alex Kim, Jordan Lee, Sam Patel) with active state indicated by solid purple fill. Each preset auto-fills the profile, target level, and panel mode. A contextual blurb below describes the bias scenario each candidate triggers (e.g., "pedigree bias", "affinity bias").
 
-4. **Configuration dropdowns** — Two-column grid:
-   - Target Level: L3 / L4 / L5 / L6
+4. **Candidate profile textarea (under JSON Profile tab)** — `12-row` monospace textarea pre-filled with JSON. Editable. Focus highlights border in brand purple.
+
+5. **Configuration dropdowns (under JSON Profile tab)** — Two-column grid:
+   - Target Level: L3 / L4 / L5 / L6 (Auditor bias severity detection thresholds adapt based on target level).
    - Panel Mode: Balanced / Technical-heavy / Culture-heavy
 
-5. **"Convene the Panel →" button** — Full-width purple button with hover glow effect (box-shadow transition). The primary action that transitions to the panel stage.
+6. **"Convene the Panel →" button** — Full-width purple button with hover glow effect (box-shadow transition). The primary action that transitions to the panel stage.
 
-6. **Footer disclaimer** — "FairLens surfaces potential bias patterns for reflection. Final hiring decisions remain with humans."
+7. **Footer disclaimer** — "FairLens surfaces potential bias patterns for reflection. Final hiring decisions remain with humans."
 
 ---
 
@@ -340,23 +344,28 @@ All animations are defined in `src/styles.css` as `@keyframes` with correspondin
 
 ---
 
-## Data Flow
+## Data Flow & Streaming
 
-### Streaming Simulation (`use-scenario-runtime.ts`)
+### Live SSE Integration (`use-backend-runtime.ts`)
 
-The custom hook drives the entire real-time experience:
+The real-time agent transcripts and pipeline updates are driven by the FastAPI backend over Server-Sent Events (SSE). The `useBackendRuntime` custom hook orchestrates this integration:
 
-- **Tick rate:** 22ms interval
-- **Chunk size:** 14 characters per tick
-- **Agent stagger:** 220ms offset between agents
-- **Flag pauses:** 360ms before a flag, 120ms after
-- **Output structure:** Array of `TranscriptChunk` objects — either `{ kind: "text", text: string }` or `{ kind: "flag", severity, biasType, quote, explain }`
+1. **Request Initiation:** Sends a `POST /run` request to the backend with candidate data, triggering the backend pipeline task and establishing a connection.
+2. **SSE Chunk Reading:** Reads raw chunk byte-streams asynchronously using standard `ReadableStream` decoding.
+3. **Event Dispatching:** Handles multi-agent pipeline signals, modifying the local React state machine based on the following event types:
+   * `pipeline_start`: Updates UI with the active provider (`gemini` / `grok` / `groq`).
+   * `agent_start`: Transitions the specific agent column to a `running` status indicator.
+   * `transcript_chunk`: Appends incoming characters to the targeted panel interviewer transcript text buffer. Events from `BiasAuditor` and `VerdictSynthesizer` are filtered out to prevent raw JSON and summary transcripts from bleeding into the primary column channels.
+   * `agent_verdict`: Sets structured intermediate recommendations (e.g. `HIRE`, `LEAN HIRE`) in the agent's verdict footer.
+   * `agent_done`: Sets the column status to `done`, finalizing the specific panel agent execution.
+   * `bias_flag`: Extracted from the Auditor's calls to the `flag_bias` tool. Displays an animated inline flag warning block with correct severity styles.
+   * `auditor_summary`: Renders the intermediate Auditor summary metrics.
+   * `final_verdict`: Emits the full structured final debiased recommendation JSON.
+4. **Timer synchronization:** Tracks active run-time duration locally.
+5. **Float-to-Integer Calibration:** Incorporates validation safeguards on confidence values; float scores (e.g., `0.6` indicating 60%) are dynamically scaled to integers (`60`) for clean display in `ConfidenceRing` and template labels.
 
-The hook returns:
-
-- `runtime` — `Record<AgentKey, { rendered: TranscriptChunk[], done: boolean }>`
-- `allDone` — boolean
-- `elapsedMs` — number
+### Streaming Simulation fallback (`use-scenario-runtime.ts`)
+* Used as a client-side mock fallback when running in fully disconnected mode or utilizing local presets. Matches the tick rate, character chunks, and flag pauses of the real-time agent pipeline.
 
 ### State Ownership
 

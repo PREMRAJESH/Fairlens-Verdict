@@ -120,7 +120,7 @@ Kicks off the multi-agent pipeline. Returns an SSE stream.
 
 | Event              | Data Fields                                                                                                                   | Description                                  |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| `pipeline_start`   | `provider: "gemini" \| "grok"`                                                                                                | Pipeline has begun                           |
+| `pipeline_start`   | `provider: "gemini" \| "grok" \| "groq"`                                                                                      | Pipeline has begun                           |
 | `agent_start`      | `agent: string`                                                                                                               | An agent has begun reasoning                 |
 | `transcript_chunk` | `agent, text`                                                                                                                 | 14-char text chunks of agent output          |
 | `agent_verdict`    | `agent, position, justification`                                                                                              | Parsed structured verdict from a panel agent |
@@ -166,15 +166,15 @@ full_pipeline (SequentialAgent)
 1. **HiringPanel** (ParallelAgent) runs all three evaluators concurrently.
 2. **AuditAndSynthesize** (SequentialAgent) runs the BiasAuditor first, then the VerdictSynthesizer.
 
-### Grok Fallback Pipeline (`grok_pipeline.py`)
+### Grok & Groq Fallback Pipelines (`grok_pipeline.py`, `groq_pipeline.py`)
 
 Manual sequential execution via OpenAI SDK (no ADK):
 
-1. TechnicalInterviewer (`grok-2-1212`, streaming)
-2. CultureFitAssessor (`grok-2-1212`, streaming)
-3. SeniorityAssessor (`grok-2-1212`, streaming)
-4. BiasAuditor (`grok-2-1212`, tool calls via `flag_bias`)
-5. VerdictSynthesizer (`grok-2-1212`)
+1. TechnicalInterviewer (`grok-2-1212` / `llama-3.3-70b-versatile`, streaming)
+2. CultureFitAssessor (`grok-2-1212` / `llama-3.3-70b-versatile`, streaming)
+3. SeniorityAssessor (`grok-2-1212` / `llama-3.3-70b-versatile`, streaming)
+4. BiasAuditor (`grok-2-1212` / `llama-3.3-70b-versatile`, tool calls via `flag_bias`)
+5. VerdictSynthesizer (`grok-2-1212` / `llama-3.3-70b-versatile`, produces final recommendation JSON)
 
 ---
 
@@ -223,10 +223,11 @@ Manual sequential execution via OpenAI SDK (no ADK):
 Resolution order:
 
 1. If `GOOGLE_API_KEY` is set and valid → Gemini (`gemini-2.5-flash`)
-2. Else if `XAI_API_KEY` is set → Grok (`grok-2-1212`)
-3. If neither → error
+2. Else if `XAI_API_KEY` is set and valid → Grok (`grok-2-1212`)
+3. Else if `GROQ_API_KEY` is set and valid → Groq (`llama-3.3-70b-versatile`)
+4. If none of these → error
 
-**Auto-failover:** If the Gemini pipeline throws an auth/rate-limit error, the server automatically falls back to Grok.
+**Auto-failover:** If the Gemini pipeline throws an auth, rate-limit, or connection error, the server automatically falls back to Grok, and then to Groq if Grok is unavailable. This fallback logic is implemented in both the `/run` multi-agent pipeline and the `/parse-resume` endpoint.
 
 ---
 
@@ -257,7 +258,11 @@ In-memory per-session bias flag storage:
 | `get_auditor_summary(session_id)`                                                                | Computes summary (total flags, severity counts, most biased agent, dominant bias types, confidence score) |
 | `clear_session(session_id)`                                                                      | Clears in-memory data                                                                                     |
 
-**Confidence score formula:** `max(0, 100 - (total_flags * 12) - (high_severity_count * 8))`
+**Confidence score formula:**
+Calculated based on detected bias severity counts:
+* `deduction = (high * 15) + (medium * 7) + (low * 3)`
+* **Unchanged Outcome Bonus:** If the Synthesizer debiased the transcripts and confirmed that the final position did NOT flip from the raw verdict, the trust penalty is halved (`deduction = deduction * 0.5`).
+* `confidence_score = int(max(20, 100 - deduction))`
 
 ---
 
