@@ -941,9 +941,9 @@
       "source_file": "src/components/ui/accordion.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 25,
+      "community": 5,
       "norm_label": "accordion.tsx",
-      "community_name": "Community 25",
+      "community_name": "Community 5",
       "id": "ui_accordion"
     },
     {
@@ -952,9 +952,9 @@
       "source_file": "src/components/ui/accordion.tsx",
       "source_location": "L9",
       "_origin": "ast",
-      "community": 25,
+      "community": 5,
       "norm_label": "accordionitem",
-      "community_name": "Community 25",
+      "community_name": "Community 5",
       "id": "ui_accordion_accordionitem"
     },
     {
@@ -963,9 +963,9 @@
       "source_file": "src/components/ui/accordion.tsx",
       "source_location": "L17",
       "_origin": "ast",
-      "community": 25,
+      "community": 5,
       "norm_label": "accordiontrigger",
-      "community_name": "Community 25",
+      "community_name": "Community 5",
       "id": "ui_accordion_accordiontrigger"
     },
     {
@@ -974,9 +974,9 @@
       "source_file": "src/components/ui/accordion.tsx",
       "source_location": "L37",
       "_origin": "ast",
-      "community": 25,
+      "community": 5,
       "norm_label": "accordioncontent",
-      "community_name": "Community 25",
+      "community_name": "Community 5",
       "id": "ui_accordion_accordioncontent"
     },
     {

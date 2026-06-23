@@ -42,7 +42,7 @@ export function useBackendRuntime() {
   const [elapsedMs, setElapsedMs] = useState(0);
   const [running, setRunning] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [provider, setProvider] = useState<"gemini" | "grok" | null>(null);
+  const [provider, setProvider] = useState<"gemini" | "grok" | "groq" | null>(null);
   const [agentStatuses, setAgentStatuses] =
     useState<Record<string, AgentStatus>>(initialAgentStatuses);
   const [agentsWithHighFlags, setAgentsWithHighFlags] = useState<Set<string>>(new Set());
@@ -77,7 +77,7 @@ export function useBackendRuntime() {
     switch (eventType) {
       case "pipeline_start": {
         const p = data.provider as string;
-        if (p === "gemini" || p === "grok") {
+        if (p === "gemini" || p === "grok" || p === "groq") {
           setProvider(p);
         }
         break;
@@ -90,6 +90,14 @@ export function useBackendRuntime() {
         break;
       }
       case "transcript_chunk": {
+        const panelAgents = [
+          "TechnicalInterviewer",
+          "CultureFitAssessor",
+          "SeniorityAssessor",
+        ];
+        if (!panelAgents.includes(data.agent as string)) {
+          break;
+        }
         const agent = AGENT_BACKEND_TO_FRONTEND[data.agent as BackendAgentName];
         if (!agent) break;
         setRuntime((prev) => {

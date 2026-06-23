@@ -3,9 +3,13 @@ import asyncio
 import logging
 import os
 import re
+from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv
+# Load .env relative to this file
+load_dotenv(dotenv_path=Path(__file__).parent / ".env")
+
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
@@ -16,8 +20,7 @@ import google.generativeai as genai
 from models.schemas import RunRequest, FinalVerdict
 from tools.flag_bias import clear_session
 from pipeline import run_pipeline
-
-load_dotenv()
+from models.provider import get_provider_status
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("fairlens")
@@ -92,8 +95,45 @@ Rules:
 Resume text:
 {full_text[:6000]}"""
 
-    response = model.generate_content(prompt)
-    raw = response.text.strip()
+    raw = None
+    try:
+        response = model.generate_content(prompt)
+        raw = response.text.strip()
+    except Exception as gemini_err:
+        logger.warning("Gemini resume parsing failed: %s. Trying fallbacks...", gemini_err)
+
+        from models.provider import grok_available, groq_available, XAI_API_KEY, GROQ_API_KEY, GROK_MODEL, GROQ_MODEL
+        from openai import AsyncOpenAI
+
+        if grok_available():
+            try:
+                logger.info("Using Grok (xAI) fallback for resume parsing")
+                client = AsyncOpenAI(api_key=XAI_API_KEY, base_url="https://api.x.ai/v1")
+                completion = await client.chat.completions.create(
+                    model=GROK_MODEL,
+                    messages=[{"role": "user", "content": prompt}],
+                )
+                raw = completion.choices[0].message.content.strip()
+            except Exception as grok_err:
+                logger.error("Grok fallback failed: %s", grok_err)
+
+        if not raw and groq_available():
+            try:
+                logger.info("Using Groq fallback for resume parsing")
+                client = AsyncOpenAI(api_key=GROQ_API_KEY, base_url="https://api.groq.com/openai/v1")
+                completion = await client.chat.completions.create(
+                    model=GROQ_MODEL,
+                    messages=[{"role": "user", "content": prompt}],
+                )
+                raw = completion.choices[0].message.content.strip()
+            except Exception as groq_err:
+                logger.error("Groq fallback failed: %s", groq_err)
+
+        if not raw:
+            raise HTTPException(
+                status_code=502,
+                detail=f"All models failed for resume parsing. Gemini error: {gemini_err}"
+            )
 
     if raw.startswith("```"):
         raw = raw.split("```")[1]
@@ -128,12 +168,19 @@ async def run(request: RunRequest):
     )
 
     async def event_generator():
+        got_error = False
         try:
             while True:
+                # After an error, give only 5s for the 'done' event before closing
+                wait_timeout = 5.0 if got_error else 120.0
                 try:
-                    event = await asyncio.wait_for(sse_queue.get(), timeout=120.0)
+                    event = await asyncio.wait_for(sse_queue.get(), timeout=wait_timeout)
                 except asyncio.TimeoutError:
-                    yield {"event": "error", "data": json.dumps({"type": "error", "message": "Pipeline timeout"})}
+                    if got_error:
+                        # Pipeline sent error but no 'done' — close cleanly
+                        logger.warning("Pipeline did not send 'done' after error — closing SSE stream")
+                    else:
+                        yield {"data": json.dumps({"type": "error", "message": "Pipeline timeout — no response after 120s"})}
                     break
 
                 if event.get("type") == "final_verdict":
@@ -143,14 +190,14 @@ async def run(request: RunRequest):
                     except Exception as exc:
                         logger.warning("Failed to validate final_verdict: %s", exc)
 
-                yield {"event": "message", "data": json.dumps(event)}
+                yield {"data": json.dumps(event)}
 
                 if event.get("type") == "done":
                     break
 
                 if event.get("type") == "error":
                     logger.error("Pipeline error: %s", event.get("message"))
-                    break
+                    got_error = True
         finally:
             _running.discard(session_id)
             try:
@@ -159,6 +206,12 @@ async def run(request: RunRequest):
                 pipeline_task.cancel()
 
     return EventSourceResponse(event_generator())
+
+
+@app.get("/providers")
+async def providers():
+    """Diagnostic endpoint to check API key status."""
+    return get_provider_status()
 
 
 @app.get("/report/{session_id}")
