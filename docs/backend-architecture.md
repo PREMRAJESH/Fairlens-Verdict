@@ -16,7 +16,8 @@ FairLens backend is a **Python** FastAPI server that orchestrates a multi-agent 
 | Pydantic v2         | Data validation / schemas                                              |
 | Google ADK          | Agent orchestration (LlmAgent, ParallelAgent, SequentialAgent, Runner) |
 | google-generativeai | Gemini model access (`gemini-2.5-flash`)                               |
-| OpenAI Python SDK   | Grok (xAI) fallback via `openai>=1.0`                                  |
+| OpenAI Python SDK   | Grok (xAI) and Groq fallback API client access (`openai>=1.0`)          |
+| PyMuPDF (`fitz`)    | PDF text extraction for candidate resume parsing                       |
 | python-dotenv       | `.env` loading                                                         |
 | sse-starlette       | Server-Sent Events streaming                                           |
 
@@ -63,6 +64,40 @@ Health check.
 ```json
 { "status": "ok" }
 ```
+
+---
+
+### `POST /parse-resume`
+
+Parses an uploaded PDF resume, extracts the text using PyMuPDF (`fitz`), and leverages the Generative AI model (`gemini-2.5-flash` with automatic fallback to Grok/Groq if rate-limited) to extract structured candidate profiles matching the frontend JSON schema.
+
+**Request:** Multipart form-data with file upload (`file: UploadFile`).
+
+**Response:**
+
+```json
+{
+  "candidate": {
+    "name": "Prem Rajesh",
+    "target_role": "",
+    "target_level": "L3 / L4 / L5 / L6",
+    "years_experience": 4,
+    "education": "B.E. in Computer Engineering",
+    "current_company": "...",
+    "current_title": "...",
+    "past_companies": ["..."],
+    "key_projects": ["..."],
+    "interview_notes": "",
+    "interviewer_raw_notes": []
+  },
+  "raw_text_preview": "Prem Rajesh\nSoftware Engineer..."
+}
+```
+
+**Errors:**
+* `400 Bad Request` if file is not a PDF.
+* `422 Unprocessable Entity` if no text could be extracted.
+* `502 Bad Gateway` if all LLM models (Gemini, Grok, Groq) failed or rate-limited.
 
 ---
 
