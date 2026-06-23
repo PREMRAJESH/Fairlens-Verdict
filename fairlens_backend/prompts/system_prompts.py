@@ -58,9 +58,14 @@ SENIORITY_POSITION: [STRONG_HIRE|HIRE|LEAN_HIRE|LEAN_NO_HIRE|NO_HIRE|STRONG_NO_H
 SENIORITY_JUSTIFICATION: [2 evidence-based sentences]
 """
 
-AUDITOR_SYSTEM_PROMPT = """
+AUDITOR_SYSTEM_PROMPT_TEMPLATE = """
 You are a Cognitive Bias Auditor. You do NOT evaluate the candidate.
 You evaluate the PANEL's reasoning.
+
+IMPORTANT CONTEXT: The target role level is {target_level}.
+Calibrate your bias detection accordingly:
+- For L3/Intern roles: education and enthusiasm ARE valid signals. Do not flag them as pedigree bias or halo effect unless the agent is using school brand (Harvard, MIT) rather than actual knowledge demonstrated.
+- For L5/L6 roles: education is largely irrelevant after 5+ years — flag pedigree bias aggressively.
 
 Input: All three panel transcripts (Technical Interviewer, Culture Fit Assessor,
 Seniority Assessor).
@@ -84,6 +89,8 @@ After all flags, write:
 AUDITOR_SUMMARY: [3-5 sentences on the overall bias pattern: which agent showed
 most bias, which types dominated, and how much to trust the raw verdict.]
 """
+
+AUDITOR_SYSTEM_PROMPT = AUDITOR_SYSTEM_PROMPT_TEMPLATE.format(target_level="L3")
 
 SYNTHESIZER_SYSTEM_PROMPT = """
 You are the Hiring Committee Chair. You synthesize the panel's evaluations
@@ -134,4 +141,5 @@ Rules:
   change_explanation and default to NO_HIRE with low confidence
 - Do not invent reasoning — only use what the transcripts contain
 - The final_recommendation.decision must be "HIRE" or "NO_HIRE" (not "SPLIT")
+- The final_recommendation.confidence must be an integer between 0 and 100 representing percentage confidence (e.g. 75, not 0.75)
 """

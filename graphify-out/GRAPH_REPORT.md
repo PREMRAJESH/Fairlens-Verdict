@@ -1,15 +1,16 @@
-# Graph Report - D:\New folder\Fairlens  (2026-06-24)
+# Graph Report - Fairlens  (2026-06-24)
 
 ## Corpus Check
-- cluster-only mode — file stats not available
+- 85 files · ~23,212 words
+- Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 434 nodes · 655 edges · 40 communities (33 shown, 7 thin omitted)
+- 555 nodes · 773 edges · 45 communities (38 shown, 7 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 5 edges (avg confidence: 0.82)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3290b2c8`
+- Built from commit: `be84d79b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -39,6 +40,7 @@
 - [[_COMMUNITY_Community 22|Community 22]]
 - [[_COMMUNITY_Community 23|Community 23]]
 - [[_COMMUNITY_Community 24|Community 24]]
+- [[_COMMUNITY_Community 25|Community 25]]
 - [[_COMMUNITY_Community 26|Community 26]]
 - [[_COMMUNITY_Community 27|Community 27]]
 - [[_COMMUNITY_Community 28|Community 28]]
@@ -49,18 +51,22 @@
 - [[_COMMUNITY_Community 35|Community 35]]
 - [[_COMMUNITY_Community 36|Community 36]]
 - [[_COMMUNITY_Community 37|Community 37]]
+- [[_COMMUNITY_Community 41|Community 41]]
+- [[_COMMUNITY_Community 42|Community 42]]
+- [[_COMMUNITY_Community 43|Community 43]]
+- [[_COMMUNITY_Community 44|Community 44]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `cn()` - 69 edges
-2. `run_pipeline()` - 13 edges
-3. `run_grok_pipeline()` - 9 edges
-4. `resolve_provider()` - 7 edges
-5. `buttonVariants` - 6 edges
-6. `_call_agent()` - 5 edges
-7. `get_auditor_summary()` - 5 edges
-8. `clear_session()` - 5 edges
-9. `Chip()` - 5 edges
-10. `renderErrorPage()` - 5 edges
+2. `compilerOptions` - 17 edges
+3. `run_pipeline()` - 13 edges
+4. `run_grok_pipeline()` - 9 edges
+5. `resolve_provider()` - 7 edges
+6. `scripts` - 7 edges
+7. `aliases` - 6 edges
+8. `buttonVariants` - 6 edges
+9. `tailwind` - 5 edges
+10. `_call_agent()` - 5 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `AlertDialogHeader()` --calls--> `cn()`  [EXTRACTED]
@@ -71,8 +77,8 @@
   src/components/ui/breadcrumb.tsx → src/lib/utils.ts
 - `BreadcrumbEllipsis()` --calls--> `cn()`  [EXTRACTED]
   src/components/ui/breadcrumb.tsx → src/lib/utils.ts
-- `CommandShortcut()` --calls--> `cn()`  [EXTRACTED]
-  src/components/ui/command.tsx → src/lib/utils.ts
+- `CalendarDayButton()` --calls--> `cn()`  [EXTRACTED]
+  src/components/ui/calendar.tsx → src/lib/utils.ts
 
 ## Import Cycles
 - None detected.
@@ -81,7 +87,7 @@
 - **LLM Integration Stack** — requirements_google_generativeai, requirements_openai, requirements_google_adk [INFERRED 0.85]
 - **Web API Infrastructure** — requirements_fastapi, requirements_uvicorn, requirements_sse_starlette, requirements_python_multipart [INFERRED 0.90]
 
-## Communities (40 total, 7 thin omitted)
+## Communities (45 total, 7 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.07
@@ -89,7 +95,7 @@ Nodes (41): EMPTY_TEMPLATE, InputScreen(), InputTab, AgentColumn(), LivePanel(),
 
 ### Community 1 - "Community 1"
 Cohesion: 0.05
-Nodes (39): useIsMobile(), Input, Separator, SheetContent, SheetContentProps, SheetDescription, SheetFooter(), SheetHeader() (+31 more)
+Nodes (37): useIsMobile(), Input, Separator, SheetContent, SheetContentProps, SheetDescription, SheetHeader(), SheetOverlay (+29 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.10
@@ -100,12 +106,12 @@ Cohesion: 0.10
 Nodes (20): consumeLastCapturedError(), renderErrorPage(), Route, Route, getRouter(), FileRoutesByFullPath, FileRoutesById, FileRoutesByPath (+12 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.19
-Nodes (16): cn(), Button, ButtonProps, buttonVariants, Calendar(), CalendarDayButton(), Pagination(), PaginationContent (+8 more)
+Cohesion: 0.17
+Nodes (13): Button, ButtonProps, buttonVariants, Calendar(), CalendarDayButton(), Pagination(), PaginationContent, PaginationEllipsis() (+5 more)
 
 ### Community 5 - "Community 5"
-Cohesion: 0.09
-Nodes (12): AccordionContent, AccordionItem, AccordionTrigger, Checkbox, HoverCardContent, PopoverContent, Progress, RadioGroup (+4 more)
+Cohesion: 0.10
+Nodes (11): Checkbox, HoverCardContent, Progress, ScrollArea, ScrollBar, Slider, Switch, TabsContent (+3 more)
 
 ### Community 6 - "Community 6"
 Cohesion: 0.12
@@ -183,6 +189,10 @@ Nodes (4): InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot
 Cohesion: 0.50
 Nodes (4): fastapi, python-multipart, sse-starlette, uvicorn
 
+### Community 25 - "Community 25"
+Cohesion: 0.04
+Nodes (53): dependencies, class-variance-authority, clsx, cmdk, date-fns, embla-carousel-react, @hookform/resolvers, input-otp (+45 more)
+
 ### Community 26 - "Community 26"
 Cohesion: 0.50
 Nodes (3): Avatar, AvatarFallback, AvatarImage
@@ -192,28 +202,44 @@ Cohesion: 0.67
 Nodes (3): Badge(), BadgeProps, badgeVariants
 
 ### Community 28 - "Community 28"
+Cohesion: 0.07
+Nodes (28): devDependencies, eslint, eslint-config-prettier, @eslint/js, eslint-plugin-prettier, eslint-plugin-react-hooks, eslint-plugin-react-refresh, globals (+20 more)
+
+### Community 29 - "Community 29"
+Cohesion: 0.10
+Nodes (19): compilerOptions, allowImportingTsExtensions, jsx, lib, module, moduleResolution, noEmit, noFallthroughCasesInSwitch (+11 more)
+
+### Community 41 - "Community 41"
+Cohesion: 0.11
+Nodes (18): aliases, components, hooks, lib, ui, utils, iconLibrary, registries (+10 more)
+
+### Community 42 - "Community 42"
+Cohesion: 0.31
+Nodes (6): cn(), PopoverContent, ResizableHandle(), ResizablePanelGroup(), SheetFooter(), Skeleton()
+
+### Community 43 - "Community 43"
 Cohesion: 0.50
-Nodes (3): TabsContent, TabsList, TabsTrigger
+Nodes (3): AccordionContent, AccordionItem, AccordionTrigger
 
 ## Knowledge Gaps
-- **201 isolated node(s):** `EMPTY_TEMPLATE`, `InputTab`, `AccordionItem`, `AccordionTrigger`, `AccordionContent` (+196 more)
+- **312 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `css` (+307 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `cn()` connect `Community 4` to `Community 1`, `Community 5`, `Community 6`, `Community 7`, `Community 9`, `Community 10`, `Community 11`, `Community 12`, `Community 13`, `Community 14`, `Community 15`, `Community 16`, `Community 17`, `Community 18`, `Community 19`, `Community 20`, `Community 21`, `Community 22`, `Community 23`, `Community 26`, `Community 27`, `Community 28`, `Community 29`?**
-  _High betweenness centrality (0.213) - this node is a cross-community bridge._
+- **Why does `cn()` connect `Community 42` to `Community 1`, `Community 4`, `Community 5`, `Community 6`, `Community 7`, `Community 9`, `Community 10`, `Community 11`, `Community 12`, `Community 13`, `Community 14`, `Community 15`, `Community 16`, `Community 17`, `Community 18`, `Community 19`, `Community 20`, `Community 21`, `Community 22`, `Community 23`, `Community 26`, `Community 27`, `Community 43`, `Community 44`?**
+  _High betweenness centrality (0.130) - this node is a cross-community bridge._
+- **Why does `dependencies` connect `Community 25` to `Community 28`?**
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `run_pipeline()` (e.g. with `run()` and `run_grok_pipeline()`) actually correct?**
   _`run_pipeline()` has 2 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `EMPTY_TEMPLATE`, `InputTab`, `AccordionItem` to the rest of the system?**
-  _201 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **What connects `$schema`, `style`, `rsc` to the rest of the system?**
+  _312 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.06954887218045112 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.05087881591119334 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05391120507399577 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
   _Cohesion score 0.1024390243902439 - nodes in this community are weakly interconnected._
-- **Should `Community 3` be split into smaller, more focused modules?**
-  _Cohesion score 0.0967741935483871 - nodes in this community are weakly interconnected._

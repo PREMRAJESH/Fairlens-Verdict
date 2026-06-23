@@ -7,6 +7,7 @@ from typing import Optional
 from google.adk.agents import LlmAgent, ParallelAgent, SequentialAgent
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
+from google.genai import types
 
 from agents import (
     technical_interviewer,
@@ -16,7 +17,7 @@ from agents import (
     verdict_synthesizer,
 )
 from tools.flag_bias import clear_session, store_flag, get_auditor_summary
-from models.provider import resolve_provider, gemini_available, grok_available, GEMINI_MODEL as MODEL
+from models.provider import resolve_provider, gemini_available, grok_available, groq_available, GEMINI_MODEL as MODEL
 
 logger = logging.getLogger("fairlens")
 
@@ -96,6 +97,17 @@ async def run_pipeline(
 ):
     clear_session(session_id)
 
+    target_level = "L3"
+    try:
+        cand_data = json.loads(candidate_json)
+        if isinstance(cand_data, dict):
+            target_level = cand_data.get("target_level", "L3")
+    except Exception:
+        pass
+
+    from prompts.system_prompts import AUDITOR_SYSTEM_PROMPT_TEMPLATE
+    bias_auditor.instruction = AUDITOR_SYSTEM_PROMPT_TEMPLATE.format(target_level=target_level)
+
     provider = resolve_provider()
 
     if provider == "grok":
@@ -104,10 +116,16 @@ async def run_pipeline(
         await run_grok_pipeline(session_id, candidate_json, sse_queue)
         return
 
+    if provider == "groq":
+        logger.info("Using Groq pipeline")
+        from groq_pipeline import run_groq_pipeline
+        await run_groq_pipeline(session_id, candidate_json, sse_queue)
+        return
+
     if provider != "gemini":
         sse_queue.put_nowait({
             "type": "error",
-            "message": "No AI provider available. Set GOOGLE_API_KEY or XAI_API_KEY in .env",
+            "message": "No AI provider available. Set GOOGLE_API_KEY, XAI_API_KEY, or GROQ_API_KEY in .env",
             "agent": None,
         })
         sse_queue.put_nowait({"type": "done", "session_id": session_id})
@@ -139,8 +157,9 @@ async def run_pipeline(
         async for event in runner.run_async(
             user_id="user",
             session_id=session_id,
-            new_message=(
-                f"Evaluate this candidate:\n\n{candidate_json}"
+            new_message=types.Content(
+                role="user",
+                parts=[types.Part.from_text(text=f"Evaluate this candidate:\n\n{candidate_json}")]
             ),
         ):
             author = getattr(event, "author", None) or ""
@@ -247,7 +266,11 @@ async def run_pipeline(
                             verdict_json = json.loads(verdict_text)
                             verdict_json["session_id"] = session_id
 
-                            bias_summary = get_auditor_summary(session_id)
+                            changed_from_raw = False
+                            if "debiased_verdict" in verdict_json and isinstance(verdict_json["debiased_verdict"], dict):
+                                changed_from_raw = verdict_json["debiased_verdict"].get("changed_from_raw", False)
+
+                            bias_summary = get_auditor_summary(session_id, changed_from_raw=changed_from_raw)
                             verdict_json.setdefault("bias_summary", {
                                 "total_flags": bias_summary["total_flags"],
                                 "high_severity_count": bias_summary["high_severity_count"],
@@ -271,18 +294,17 @@ async def run_pipeline(
         _emit({"type": "done", "session_id": session_id})
 
     except Exception as exc:
-        exc_str = str(exc).lower()
-        is_auth_error = any(k in exc_str for k in [
-            "api_key", "api key", "not found", "not found for url",
-            "permission", "unauthorized", "403", "401", "404",
-            "quota", "rate limit", "429", "resource exhausted",
-            "unavailable", "503", "internal", "500",
-        ])
+        logger.warning("Gemini pipeline failed: %s", exc)
 
-        if is_auth_error and grok_available():
-            logger.warning("Gemini pipeline failed (%s) — falling back to Grok", exc)
+        # Always try fallback providers on any Gemini failure
+        if grok_available():
+            logger.info("Falling back to Grok (xAI)")
             from grok_pipeline import run_grok_pipeline
             await run_grok_pipeline(session_id, candidate_json, sse_queue)
+        elif groq_available():
+            logger.info("Falling back to Groq")
+            from groq_pipeline import run_groq_pipeline
+            await run_groq_pipeline(session_id, candidate_json, sse_queue)
         else:
             _emit({
                 "type": "error",
@@ -290,3 +312,4 @@ async def run_pipeline(
                 "agent": None,
             })
             _emit({"type": "done", "session_id": session_id})
+

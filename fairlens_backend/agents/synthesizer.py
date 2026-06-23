@@ -12,5 +12,5 @@ verdict_synthesizer = LlmAgent(
     instruction=SYNTHESIZER_SYSTEM_PROMPT,
     output_key="final_verdict",
     output_schema=SynthesizerOutput,
-    planner=BuiltInPlanner(thinking_config=ThinkingConfig(thinking_budget=8192)),
+    planner=BuiltInPlanner(thinking_config=ThinkingConfig(thinking_budget=1024)),
 )

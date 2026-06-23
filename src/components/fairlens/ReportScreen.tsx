@@ -33,8 +33,16 @@ export function ReportScreen({
     low: flags.filter((f) => f.severity === "LOW").length,
   };
 
+  const normalizeConfidence = (val: number) => {
+    if (val <= 1.0) {
+      return Math.round(val * 100);
+    }
+    return Math.round(val);
+  };
+
   const summaryData = auditorSummary ?? bias_summary;
-  const confidenceScore = summaryData?.confidence_score ?? final_recommendation.confidence;
+  const confidenceScore = normalizeConfidence(summaryData?.confidence_score ?? final_recommendation.confidence);
+  const finalRecConfidence = normalizeConfidence(final_recommendation.confidence);
 
   const sortedFlags = [...flags].sort((a, b) => {
     const order = { HIGH: 0, MEDIUM: 1, LOW: 2 };
@@ -275,7 +283,7 @@ export function ReportScreen({
                 {verdictLabel(final_recommendation.decision as Verdict).toUpperCase()}
               </div>
               <div className="mt-1 text-[13px]" style={{ color: "var(--text-secondary)" }}>
-                Confidence: <span className="fl-mono">{final_recommendation.confidence}/100</span>
+                Confidence: <span className="fl-mono">{finalRecConfidence}/100</span>
               </div>
               <ul
                 className="mt-4 flex flex-col gap-2 text-[14px]"
@@ -289,7 +297,7 @@ export function ReportScreen({
                 ))}
               </ul>
             </div>
-            <ConfidenceRing value={final_recommendation.confidence} size={64} />
+            <ConfidenceRing value={finalRecConfidence} size={64} />
           </div>
         </div>
 
@@ -432,8 +440,8 @@ function VerdictFlip({
         <div
           className="fl-slide-from-left flex flex-col items-center justify-center rounded-[12px] border p-6 text-center"
           style={{
-            background: "color-mix(in oklab, var(--verdict-nohire) 8%, var(--surface))",
-            borderColor: "color-mix(in oklab, var(--verdict-nohire) 25%, var(--border))",
+            background: `color-mix(in oklab, var(--verdict-${verdictIsHire(rawPosition as Verdict) ? "hire" : "nohire"}) 8%, var(--surface))`,
+            borderColor: `color-mix(in oklab, var(--verdict-${verdictIsHire(rawPosition as Verdict) ? "hire" : "nohire"}) 25%, var(--border))`,
           }}
         >
           <div className="fl-label-sm">Raw panel verdict</div>
@@ -478,8 +486,8 @@ function VerdictFlip({
                   borderWidth: 2,
                 }
               : {
-                  background: "color-mix(in oklab, var(--verdict-hire) 8%, var(--surface))",
-                  borderColor: "color-mix(in oklab, var(--verdict-hire) 25%, var(--border))",
+                  background: `color-mix(in oklab, var(--verdict-${verdictIsHire(debiasedPosition as Verdict) ? "hire" : "nohire"}) 8%, var(--surface))`,
+                  borderColor: `color-mix(in oklab, var(--verdict-${verdictIsHire(debiasedPosition as Verdict) ? "hire" : "nohire"}) 25%, var(--border))`,
                 }
           }
         >

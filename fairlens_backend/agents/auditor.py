@@ -15,5 +15,5 @@ bias_auditor = LlmAgent(
     instruction=AUDITOR_SYSTEM_PROMPT,
     tools=[flag_bias_tool],
     output_key="bias_report",
-    planner=BuiltInPlanner(thinking_config=ThinkingConfig(thinking_budget=8192)),
+    planner=BuiltInPlanner(thinking_config=ThinkingConfig(thinking_budget=1024)),
 )

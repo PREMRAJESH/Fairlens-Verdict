@@ -29,7 +29,7 @@ def get_flags(session_id: str) -> list[dict]:
     return _store.get(session_id, [])
 
 
-def get_auditor_summary(session_id: str) -> dict:
+def get_auditor_summary(session_id: str, changed_from_raw: Optional[bool] = None) -> dict:
     flags = get_flags(session_id)
     if not flags:
         return {
@@ -57,7 +57,10 @@ def get_auditor_summary(session_id: str) -> dict:
     sorted_types = sorted(type_counts, key=type_counts.get, reverse=True)
 
     total = len(flags)
-    score = max(0, 100 - (total * 12) - (high * 8))
+    deduction = (high * 15) + (medium * 7) + (low * 3)
+    if changed_from_raw is False:
+        deduction = deduction * 0.5
+    score = int(max(20, 100 - deduction))
 
     return {
         "total_flags": total,

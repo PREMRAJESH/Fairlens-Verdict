@@ -6,7 +6,7 @@ from typing import Optional
 
 from openai import AsyncOpenAI
 
-from models.provider import GROK_MODEL, XAI_API_KEY
+from models.provider import GROQ_MODEL, GROQ_API_KEY
 from prompts.system_prompts import (
     TECHNICAL_SYSTEM_PROMPT,
     CULTURE_SYSTEM_PROMPT,
@@ -19,8 +19,8 @@ from tools.flag_bias import store_flag, get_auditor_summary, clear_session
 logger = logging.getLogger("fairlens")
 
 client = AsyncOpenAI(
-    api_key=XAI_API_KEY,
-    base_url="https://api.x.ai/v1",
+    api_key=GROQ_API_KEY,
+    base_url="https://api.groq.com/openai/v1",
 )
 
 PANEL_AGENTS = {"TechnicalInterviewer", "CultureFitAssessor", "SeniorityAssessor"}
@@ -57,7 +57,7 @@ BIAS_FUNCTIONS = [
                     "explanation": {"type": "string"},
                     "corrective_reframe": {"type": "string"},
                 },
-                "required": ["bias_type", "quote", "agent_name", "severity", "explanation", "corrective_reframe"],
+                "required": ["bias_type", "quote", "agent_name", "severity", "explanation"],
             },
         },
     }
@@ -84,7 +84,7 @@ async def _call_agent(
 
     if tools:
         response = await client.chat.completions.create(
-            model=GROK_MODEL,
+            model=GROQ_MODEL,
             messages=messages,
             tools=tools,
             tool_choice="auto",
@@ -119,7 +119,7 @@ async def _call_agent(
             })
 
             response = await client.chat.completions.create(
-                model=GROK_MODEL,
+                model=GROQ_MODEL,
                 messages=messages,
                 stream=False,
             )
@@ -136,7 +136,7 @@ async def _call_agent(
             transcript_buffer.append(msg.content)
     else:
         stream = await client.chat.completions.create(
-            model=GROK_MODEL,
+            model=GROQ_MODEL,
             messages=messages,
             stream=True,
         )
@@ -203,7 +203,7 @@ def _strip_markdown_fences(text: str) -> str:
     return text.strip()
 
 
-async def run_grok_pipeline(
+async def run_groq_pipeline(
     session_id: str,
     candidate_json: str,
     sse_queue: asyncio.Queue,
@@ -222,7 +222,7 @@ async def run_grok_pipeline(
         panel_transcripts: dict[str, str] = {}
         transcript_buffers: dict[str, list[str]] = {a: [] for a in PANEL_AGENTS}
 
-        sse_queue.put_nowait({"type": "pipeline_start", "provider": "grok"})
+        sse_queue.put_nowait({"type": "pipeline_start", "provider": "groq"})
 
         # --- Panel agents (Technical, Culture, Seniority) ---
         panel_specs = [
@@ -318,10 +318,11 @@ async def run_grok_pipeline(
         sse_queue.put_nowait({"type": "done", "session_id": session_id})
 
     except Exception as exc:
-        logger.exception("Grok pipeline error")
+        logger.exception("Groq pipeline error")
         sse_queue.put_nowait({
             "type": "error",
-            "message": f"Grok pipeline error: {exc}",
+            "message": f"Groq pipeline error: {exc}",
             "agent": None,
         })
         sse_queue.put_nowait({"type": "done", "session_id": session_id})
+
