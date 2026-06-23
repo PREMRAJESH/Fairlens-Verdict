@@ -1,0 +1,676 @@
+{
+  "communities": {
+    "0": [
+      "fairlens_inputscreen",
+      "fairlens_inputscreen_empty_template",
+      "fairlens_inputscreen_fieldentry",
+      "fairlens_inputscreen_fieldguide",
+      "fairlens_inputscreen_inputscreen",
+      "fairlens_inputscreen_inputtab",
+      "fairlens_livepanel",
+      "fairlens_livepanel_agentcolumn",
+      "fairlens_livepanel_livepanel",
+      "fairlens_livepanel_renderchunk",
+      "fairlens_primitives",
+      "fairlens_primitives_chip",
+      "fairlens_primitives_confidencering",
+      "fairlens_primitives_inlineflag",
+      "fairlens_primitives_severitytone",
+      "fairlens_primitives_verdictbadge",
+      "fairlens_reportscreen",
+      "fairlens_reportscreen_flagcard",
+      "fairlens_reportscreen_metricpill",
+      "fairlens_reportscreen_reportscreen",
+      "fairlens_reportscreen_verdictflip",
+      "fairlens_sidebar",
+      "fairlens_sidebar_fairlenssidebar",
+      "fairlens_sidebar_pipelinerow",
+      "lib_fairlens_data",
+      "lib_fairlens_data_agent_backend_to_frontend",
+      "lib_fairlens_data_agentkey",
+      "lib_fairlens_data_agentmeta",
+      "lib_fairlens_data_agents",
+      "lib_fairlens_data_agentstatus",
+      "lib_fairlens_data_all_agents",
+      "lib_fairlens_data_auditorsummarydata",
+      "lib_fairlens_data_backendagentname",
+      "lib_fairlens_data_biasflag",
+      "lib_fairlens_data_biassummary",
+      "lib_fairlens_data_debiasedverdict",
+      "lib_fairlens_data_finalrecommendation",
+      "lib_fairlens_data_finalverdictdata",
+      "lib_fairlens_data_rawverdict",
+      "lib_fairlens_data_severity",
+      "lib_fairlens_data_transcriptchunk",
+      "lib_fairlens_data_verdict",
+      "lib_fairlens_data_verdictishire",
+      "lib_fairlens_data_verdictlabel",
+      "lib_fairlens_data_verdictrank",
+      "lib_use_backend_runtime",
+      "lib_use_backend_runtime_agentruntime",
+      "lib_use_backend_runtime_emptyruntime",
+      "lib_use_backend_runtime_findinsertindex",
+      "lib_use_backend_runtime_initialagentstatuses",
+      "lib_use_backend_runtime_usebackendruntime",
+      "lib_use_scenario_runtime",
+      "lib_use_scenario_runtime_formatelapsed",
+      "routes_index",
+      "routes_index_index",
+      "routes_index_tab",
+      "routes_index_tabs"
+    ],
+    "1": [
+      "hooks_use_mobile",
+      "hooks_use_mobile_useismobile",
+      "ui_input",
+      "ui_input_input",
+      "ui_separator",
+      "ui_separator_separator",
+      "ui_sheet",
+      "ui_sheet_sheetcontent",
+      "ui_sheet_sheetcontentprops",
+      "ui_sheet_sheetdescription",
+      "ui_sheet_sheetfooter",
+      "ui_sheet_sheetheader",
+      "ui_sheet_sheetoverlay",
+      "ui_sheet_sheettitle",
+      "ui_sheet_sheetvariants",
+      "ui_sidebar",
+      "ui_sidebar_sidebar",
+      "ui_sidebar_sidebarcontent",
+      "ui_sidebar_sidebarcontext",
+      "ui_sidebar_sidebarcontextprops",
+      "ui_sidebar_sidebarfooter",
+      "ui_sidebar_sidebargroup",
+      "ui_sidebar_sidebargroupaction",
+      "ui_sidebar_sidebargroupcontent",
+      "ui_sidebar_sidebargrouplabel",
+      "ui_sidebar_sidebarheader",
+      "ui_sidebar_sidebarinput",
+      "ui_sidebar_sidebarinset",
+      "ui_sidebar_sidebarmenu",
+      "ui_sidebar_sidebarmenuaction",
+      "ui_sidebar_sidebarmenubadge",
+      "ui_sidebar_sidebarmenubutton",
+      "ui_sidebar_sidebarmenubuttonvariants",
+      "ui_sidebar_sidebarmenuitem",
+      "ui_sidebar_sidebarmenuskeleton",
+      "ui_sidebar_sidebarmenusub",
+      "ui_sidebar_sidebarmenusubbutton",
+      "ui_sidebar_sidebarmenusubitem",
+      "ui_sidebar_sidebarprovider",
+      "ui_sidebar_sidebarrail",
+      "ui_sidebar_sidebarseparator",
+      "ui_sidebar_sidebartrigger",
+      "ui_sidebar_usesidebar",
+      "ui_skeleton",
+      "ui_skeleton_skeleton",
+      "ui_tooltip",
+      "ui_tooltip_tooltipcontent"
+    ],
+    "2": [
+      "agents_auditor",
+      "agents_culture",
+      "agents_init",
+      "agents_seniority",
+      "agents_synthesizer",
+      "agents_technical",
+      "fairlens_backend_grok_pipeline",
+      "fairlens_backend_grok_pipeline_call_agent",
+      "fairlens_backend_grok_pipeline_parse_justification",
+      "fairlens_backend_grok_pipeline_parse_position",
+      "fairlens_backend_grok_pipeline_run_grok_pipeline",
+      "fairlens_backend_grok_pipeline_split_chunks",
+      "fairlens_backend_grok_pipeline_strip_markdown_fences",
+      "fairlens_backend_main",
+      "fairlens_backend_main_get_report",
+      "fairlens_backend_main_health",
+      "fairlens_backend_main_parse_resume",
+      "fairlens_backend_main_run",
+      "fairlens_backend_pipeline",
+      "fairlens_backend_pipeline_parse_justification",
+      "fairlens_backend_pipeline_parse_position",
+      "fairlens_backend_pipeline_run_pipeline",
+      "fairlens_backend_pipeline_split_chunks",
+      "fairlens_backend_pipeline_strip_markdown_fences",
+      "models_provider",
+      "models_provider_gemini_available",
+      "models_provider_get_model",
+      "models_provider_grok_available",
+      "models_provider_is_gemini",
+      "models_provider_is_grok",
+      "models_provider_resolve_provider",
+      "prompts_system_prompts",
+      "queue",
+      "tools_flag_bias",
+      "tools_flag_bias_clear_session",
+      "tools_flag_bias_flag_bias",
+      "tools_flag_bias_get_auditor_summary",
+      "tools_flag_bias_get_flags",
+      "tools_flag_bias_store_flag",
+      "tools_init",
+      "uploadfile"
+    ],
+    "3": [
+      "lib_error_capture",
+      "lib_error_capture_consumelastcapturederror",
+      "lib_error_capture_record",
+      "lib_error_page",
+      "lib_error_page_rendererrorpage",
+      "routes_index_route",
+      "routes_root",
+      "routes_root_errorcomponent",
+      "routes_root_notfoundcomponent",
+      "routes_root_rootcomponent",
+      "routes_root_rootshell",
+      "routes_root_route",
+      "src_router",
+      "src_router_getrouter",
+      "src_routetree_gen",
+      "src_routetree_gen_fileroutesbyfullpath",
+      "src_routetree_gen_fileroutesbyid",
+      "src_routetree_gen_fileroutesbypath",
+      "src_routetree_gen_fileroutesbyto",
+      "src_routetree_gen_fileroutetypes",
+      "src_routetree_gen_indexroute",
+      "src_routetree_gen_register",
+      "src_routetree_gen_rootroutechildren",
+      "src_routetree_gen_routetree",
+      "src_server",
+      "src_server_fetch",
+      "src_server_getserverentry",
+      "src_server_normalizecatastrophicssrresponse",
+      "src_server_serverentry",
+      "src_start",
+      "src_start_errormiddleware",
+      "src_start_startinstance"
+    ],
+    "4": [
+      "lib_utils_cn",
+      "ui_button",
+      "ui_button_button",
+      "ui_button_buttonprops",
+      "ui_button_buttonvariants",
+      "ui_calendar",
+      "ui_calendar_calendar",
+      "ui_calendar_calendardaybutton",
+      "ui_pagination",
+      "ui_pagination_pagination",
+      "ui_pagination_paginationcontent",
+      "ui_pagination_paginationellipsis",
+      "ui_pagination_paginationitem",
+      "ui_pagination_paginationlink",
+      "ui_pagination_paginationlinkprops",
+      "ui_pagination_paginationnext",
+      "ui_pagination_paginationprevious",
+      "ui_resizable",
+      "ui_resizable_resizablehandle",
+      "ui_resizable_resizablepanelgroup"
+    ],
+    "5": [
+      "lib_utils",
+      "ui_checkbox",
+      "ui_checkbox_checkbox",
+      "ui_hover_card",
+      "ui_hover_card_hovercardcontent",
+      "ui_popover",
+      "ui_popover_popovercontent",
+      "ui_progress",
+      "ui_progress_progress",
+      "ui_radio_group",
+      "ui_radio_group_radiogroup",
+      "ui_radio_group_radiogroupitem",
+      "ui_slider",
+      "ui_slider_slider",
+      "ui_switch",
+      "ui_switch_switch",
+      "ui_textarea",
+      "ui_textarea_textarea"
+    ],
+    "6": [
+      "ui_command",
+      "ui_command_command",
+      "ui_command_commanddialog",
+      "ui_command_commandempty",
+      "ui_command_commandgroup",
+      "ui_command_commandinput",
+      "ui_command_commanditem",
+      "ui_command_commandlist",
+      "ui_command_commandseparator",
+      "ui_command_commandshortcut",
+      "ui_dialog",
+      "ui_dialog_dialogcontent",
+      "ui_dialog_dialogdescription",
+      "ui_dialog_dialogfooter",
+      "ui_dialog_dialogheader",
+      "ui_dialog_dialogoverlay",
+      "ui_dialog_dialogtitle"
+    ],
+    "7": [
+      "ui_menubar",
+      "ui_menubar_menubar",
+      "ui_menubar_menubarcheckboxitem",
+      "ui_menubar_menubarcontent",
+      "ui_menubar_menubargroup",
+      "ui_menubar_menubaritem",
+      "ui_menubar_menubarlabel",
+      "ui_menubar_menubarmenu",
+      "ui_menubar_menubarportal",
+      "ui_menubar_menubarradiogroup",
+      "ui_menubar_menubarradioitem",
+      "ui_menubar_menubarseparator",
+      "ui_menubar_menubarshortcut",
+      "ui_menubar_menubarsub",
+      "ui_menubar_menubarsubcontent",
+      "ui_menubar_menubarsubtrigger",
+      "ui_menubar_menubartrigger"
+    ],
+    "8": [
+      "basemodel",
+      "models_init",
+      "models_schemas",
+      "models_schemas_agentposition",
+      "models_schemas_biasflag",
+      "models_schemas_biassummary",
+      "models_schemas_candidateprofile",
+      "models_schemas_debiasedverdict",
+      "models_schemas_finalrecommendation",
+      "models_schemas_finalverdict",
+      "models_schemas_rawverdict",
+      "models_schemas_runrequest",
+      "models_schemas_runresponse",
+      "models_schemas_synthesizeroutput",
+      "rootmodel"
+    ],
+    "9": [
+      "ui_form",
+      "ui_form_formcontrol",
+      "ui_form_formdescription",
+      "ui_form_formfield",
+      "ui_form_formfieldcontext",
+      "ui_form_formfieldcontextvalue",
+      "ui_form_formitem",
+      "ui_form_formitemcontext",
+      "ui_form_formitemcontextvalue",
+      "ui_form_formlabel",
+      "ui_form_formmessage",
+      "ui_form_useformfield",
+      "ui_label",
+      "ui_label_label",
+      "ui_label_labelvariants"
+    ],
+    "10": [
+      "ui_carousel",
+      "ui_carousel_carousel",
+      "ui_carousel_carouselapi",
+      "ui_carousel_carouselcontent",
+      "ui_carousel_carouselcontext",
+      "ui_carousel_carouselcontextprops",
+      "ui_carousel_carouselitem",
+      "ui_carousel_carouselnext",
+      "ui_carousel_carouseloptions",
+      "ui_carousel_carouselplugin",
+      "ui_carousel_carouselprevious",
+      "ui_carousel_carouselprops",
+      "ui_carousel_usecarousel",
+      "ui_carousel_usecarouselparameters"
+    ],
+    "11": [
+      "ui_chart",
+      "ui_chart_chartconfig",
+      "ui_chart_chartcontainer",
+      "ui_chart_chartcontext",
+      "ui_chart_chartcontextprops",
+      "ui_chart_chartlegendcontent",
+      "ui_chart_chartstyle",
+      "ui_chart_charttooltipcontent",
+      "ui_chart_getpayloadconfigfrompayload",
+      "ui_chart_themes",
+      "ui_chart_usechart"
+    ],
+    "12": [
+      "ui_context_menu",
+      "ui_context_menu_contextmenucheckboxitem",
+      "ui_context_menu_contextmenucontent",
+      "ui_context_menu_contextmenuitem",
+      "ui_context_menu_contextmenulabel",
+      "ui_context_menu_contextmenuradioitem",
+      "ui_context_menu_contextmenuseparator",
+      "ui_context_menu_contextmenushortcut",
+      "ui_context_menu_contextmenusubcontent",
+      "ui_context_menu_contextmenusubtrigger"
+    ],
+    "13": [
+      "ui_dropdown_menu",
+      "ui_dropdown_menu_dropdownmenucheckboxitem",
+      "ui_dropdown_menu_dropdownmenucontent",
+      "ui_dropdown_menu_dropdownmenuitem",
+      "ui_dropdown_menu_dropdownmenulabel",
+      "ui_dropdown_menu_dropdownmenuradioitem",
+      "ui_dropdown_menu_dropdownmenuseparator",
+      "ui_dropdown_menu_dropdownmenushortcut",
+      "ui_dropdown_menu_dropdownmenusubcontent",
+      "ui_dropdown_menu_dropdownmenusubtrigger"
+    ],
+    "14": [
+      "ui_alert_dialog",
+      "ui_alert_dialog_alertdialogaction",
+      "ui_alert_dialog_alertdialogcancel",
+      "ui_alert_dialog_alertdialogcontent",
+      "ui_alert_dialog_alertdialogdescription",
+      "ui_alert_dialog_alertdialogfooter",
+      "ui_alert_dialog_alertdialogheader",
+      "ui_alert_dialog_alertdialogoverlay",
+      "ui_alert_dialog_alertdialogtitle"
+    ],
+    "15": [
+      "ui_table",
+      "ui_table_table",
+      "ui_table_tablebody",
+      "ui_table_tablecaption",
+      "ui_table_tablecell",
+      "ui_table_tablefooter",
+      "ui_table_tablehead",
+      "ui_table_tableheader",
+      "ui_table_tablerow"
+    ],
+    "16": [
+      "ui_breadcrumb",
+      "ui_breadcrumb_breadcrumb",
+      "ui_breadcrumb_breadcrumbellipsis",
+      "ui_breadcrumb_breadcrumbitem",
+      "ui_breadcrumb_breadcrumblink",
+      "ui_breadcrumb_breadcrumblist",
+      "ui_breadcrumb_breadcrumbpage",
+      "ui_breadcrumb_breadcrumbseparator"
+    ],
+    "17": [
+      "ui_drawer",
+      "ui_drawer_drawer",
+      "ui_drawer_drawercontent",
+      "ui_drawer_drawerdescription",
+      "ui_drawer_drawerfooter",
+      "ui_drawer_drawerheader",
+      "ui_drawer_draweroverlay",
+      "ui_drawer_drawertitle"
+    ],
+    "18": [
+      "ui_navigation_menu",
+      "ui_navigation_menu_navigationmenu",
+      "ui_navigation_menu_navigationmenucontent",
+      "ui_navigation_menu_navigationmenuindicator",
+      "ui_navigation_menu_navigationmenulist",
+      "ui_navigation_menu_navigationmenutrigger",
+      "ui_navigation_menu_navigationmenutriggerstyle",
+      "ui_navigation_menu_navigationmenuviewport"
+    ],
+    "19": [
+      "ui_select",
+      "ui_select_selectcontent",
+      "ui_select_selectitem",
+      "ui_select_selectlabel",
+      "ui_select_selectscrolldownbutton",
+      "ui_select_selectscrollupbutton",
+      "ui_select_selectseparator",
+      "ui_select_selecttrigger"
+    ],
+    "20": [
+      "ui_card",
+      "ui_card_card",
+      "ui_card_cardcontent",
+      "ui_card_carddescription",
+      "ui_card_cardfooter",
+      "ui_card_cardheader",
+      "ui_card_cardtitle"
+    ],
+    "21": [
+      "ui_toggle",
+      "ui_toggle_group",
+      "ui_toggle_group_togglegroup",
+      "ui_toggle_group_togglegroupcontext",
+      "ui_toggle_group_togglegroupitem",
+      "ui_toggle_toggle",
+      "ui_toggle_togglevariants"
+    ],
+    "22": [
+      "ui_alert",
+      "ui_alert_alert",
+      "ui_alert_alertdescription",
+      "ui_alert_alerttitle",
+      "ui_alert_alertvariants"
+    ],
+    "23": [
+      "ui_input_otp",
+      "ui_input_otp_inputotp",
+      "ui_input_otp_inputotpgroup",
+      "ui_input_otp_inputotpseparator",
+      "ui_input_otp_inputotpslot"
+    ],
+    "24": [
+      "requirements_fastapi",
+      "requirements_python_multipart",
+      "requirements_sse_starlette",
+      "requirements_uvicorn"
+    ],
+    "25": [
+      "ui_accordion",
+      "ui_accordion_accordioncontent",
+      "ui_accordion_accordionitem",
+      "ui_accordion_accordiontrigger"
+    ],
+    "26": [
+      "ui_avatar",
+      "ui_avatar_avatar",
+      "ui_avatar_avatarfallback",
+      "ui_avatar_avatarimage"
+    ],
+    "27": [
+      "ui_badge",
+      "ui_badge_badge",
+      "ui_badge_badgeprops",
+      "ui_badge_badgevariants"
+    ],
+    "28": [
+      "ui_tabs",
+      "ui_tabs_tabscontent",
+      "ui_tabs_tabslist",
+      "ui_tabs_tabstrigger"
+    ],
+    "29": [
+      "ui_scroll_area",
+      "ui_scroll_area_scrollarea",
+      "ui_scroll_area_scrollbar"
+    ],
+    "30": [
+      "ui_sonner",
+      "ui_sonner_toaster",
+      "ui_sonner_toasterprops"
+    ],
+    "31": [
+      "eslint_config"
+    ],
+    "32": [
+      "prompts_init"
+    ],
+    "33": [
+      "requirements_google_adk"
+    ],
+    "34": [
+      "requirements_google_generativeai"
+    ],
+    "35": [
+      "requirements_openai"
+    ],
+    "36": [
+      "requirements_pymupdf"
+    ],
+    "37": [
+      "requirements_python_dotenv"
+    ],
+    "38": [
+      "ui_aspect_ratio"
+    ],
+    "39": [
+      "ui_collapsible"
+    ],
+    "40": [
+      "vite_config"
+    ]
+  },
+  "cohesion": {
+    "0": 0.06954887218045112,
+    "1": 0.05087881591119334,
+    "2": 0.1024390243902439,
+    "3": 0.0967741935483871,
+    "4": 0.18947368421052632,
+    "5": 0.1111111111111111,
+    "6": 0.125,
+    "7": 0.11764705882352941,
+    "8": 0.26666666666666666,
+    "9": 0.14285714285714285,
+    "10": 0.14285714285714285,
+    "11": 0.18181818181818182,
+    "12": 0.2,
+    "13": 0.2,
+    "14": 0.2222222222222222,
+    "15": 0.2222222222222222,
+    "16": 0.25,
+    "17": 0.25,
+    "18": 0.25,
+    "19": 0.25,
+    "20": 0.2857142857142857,
+    "21": 0.3333333333333333,
+    "22": 0.4,
+    "23": 0.4,
+    "24": 0.5,
+    "25": 0.5,
+    "26": 0.5,
+    "27": 0.6666666666666666,
+    "28": 0.5,
+    "29": 0.6666666666666666,
+    "30": 0.6666666666666666,
+    "31": 1.0,
+    "32": 1.0,
+    "33": 1.0,
+    "34": 1.0,
+    "35": 1.0,
+    "36": 1.0,
+    "37": 1.0,
+    "38": 1.0,
+    "39": 1.0,
+    "40": 1.0
+  },
+  "gods": [
+    {
+      "id": "lib_utils_cn",
+      "label": "cn()",
+      "degree": 69
+    },
+    {
+      "id": "fairlens_backend_pipeline_run_pipeline",
+      "label": "run_pipeline()",
+      "degree": 13
+    },
+    {
+      "id": "fairlens_backend_grok_pipeline_run_grok_pipeline",
+      "label": "run_grok_pipeline()",
+      "degree": 9
+    },
+    {
+      "id": "models_provider_resolve_provider",
+      "label": "resolve_provider()",
+      "degree": 7
+    },
+    {
+      "id": "ui_button_buttonvariants",
+      "label": "buttonVariants",
+      "degree": 6
+    },
+    {
+      "id": "fairlens_backend_grok_pipeline_call_agent",
+      "label": "_call_agent()",
+      "degree": 5
+    },
+    {
+      "id": "tools_flag_bias_get_auditor_summary",
+      "label": "get_auditor_summary()",
+      "degree": 5
+    },
+    {
+      "id": "tools_flag_bias_clear_session",
+      "label": "clear_session()",
+      "degree": 5
+    },
+    {
+      "id": "fairlens_primitives_chip",
+      "label": "Chip()",
+      "degree": 5
+    },
+    {
+      "id": "lib_error_page_rendererrorpage",
+      "label": "renderErrorPage()",
+      "degree": 5
+    }
+  ],
+  "surprises": [
+    {
+      "source": "AlertDialogHeader()",
+      "target": "cn()",
+      "source_files": [
+        "src/components/ui/alert-dialog.tsx",
+        "src/lib/utils.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities; peripheral node `AlertDialogHeader()` unexpectedly reaches hub `cn()`"
+    },
+    {
+      "source": "AlertDialogFooter()",
+      "target": "cn()",
+      "source_files": [
+        "src/components/ui/alert-dialog.tsx",
+        "src/lib/utils.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities; peripheral node `AlertDialogFooter()` unexpectedly reaches hub `cn()`"
+    },
+    {
+      "source": "BreadcrumbSeparator()",
+      "target": "cn()",
+      "source_files": [
+        "src/components/ui/breadcrumb.tsx",
+        "src/lib/utils.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities; peripheral node `BreadcrumbSeparator()` unexpectedly reaches hub `cn()`"
+    },
+    {
+      "source": "BreadcrumbEllipsis()",
+      "target": "cn()",
+      "source_files": [
+        "src/components/ui/breadcrumb.tsx",
+        "src/lib/utils.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities; peripheral node `BreadcrumbEllipsis()` unexpectedly reaches hub `cn()`"
+    },
+    {
+      "source": "CommandShortcut()",
+      "target": "cn()",
+      "source_files": [
+        "src/components/ui/command.tsx",
+        "src/lib/utils.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities; peripheral node `CommandShortcut()` unexpectedly reaches hub `cn()`"
+    }
+  ],
+  "tokens": {
+    "input": 943,
+    "output": 881
+  }
+}
