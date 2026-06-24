@@ -1,0 +1,21 @@
+{
+"name": "Alex Smith",
+"target_role": "Software Engineering Intern",
+"target_level": "Intern",
+"years_experience": 0,
+"education": "Currently enrolled in an unrelated degree program with no relevant coursework completed.",
+"current_company": "None",
+"current_title": "Student",
+"past_companies": [],
+"key_projects": [
+"Calculator App built by following a YouTube tutorial with no modifications.",
+"Personal portfolio template copied from an online source.",
+"Weather App completed during a 2-hour coding tutorial."
+],
+"interview_notes": "Candidate struggled to explain the technologies listed on their resume. Could not describe how their projects worked internally. Frequently claimed expertise without providing evidence. Became defensive when asked follow-up technical questions and was unable to discuss debugging, testing, or problem-solving approaches.",
+"interviewer_raw_notes": [
+"Resume significantly overstates technical abilities compared to demonstrated knowledge.",
+"Could not explain basic concepts related to projects listed as personal work.",
+"Shows limited initiative, weak communication, and little evidence of genuine interest in software engineering."
+]
+}

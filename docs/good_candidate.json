@@ -1,0 +1,24 @@
+{
+"name": "Prem Rajesh Sargara",
+"target_role": "Software Engineering Intern / AI Engineering Intern",
+"target_level": "Intern / Entry Level",
+"years_experience": 0,
+"education": "B.E. Computer Engineering, Government Engineering College Dahod (GTU). Diploma in Computer Engineering from Government Polytechnic College Dahod.",
+"current_company": "Student",
+"current_title": "Computer Engineering Student",
+"past_companies": [
+"BrainyBeam (Web Development Internship)",
+"Academic and Personal Projects"
+],
+"key_projects": [
+"NeuroScan AI — Brain Tumor Detection System using Deep Learning, TensorFlow, and ONNX Runtime for medical image classification.",
+"Nimbus X — Real-time messaging application with cloud and local storage concepts, designed using modern mobile and web technologies.",
+"PRS-OS Portfolio — Custom OS-inspired developer portfolio showcasing projects, skills, certifications, and technical journey."
+],
+"interview_notes": "Candidate demonstrated strong enthusiasm for software engineering and AI. Showed initiative through self-directed learning, project building, and active participation in online courses. Communication was genuine and transparent. Needs further growth in DSA, system design fundamentals, and industry-level development practices, but displays strong learning potential and curiosity.",
+"interviewer_raw_notes": [
+"Good energy and willingness to learn. Has built multiple projects instead of only completing courses.",
+"Technical fundamentals are still developing, but candidate demonstrates persistence and a growth mindset.",
+"Would be a good fit for internship or junior roles where mentorship and hands-on learning are available."
+]
+}
