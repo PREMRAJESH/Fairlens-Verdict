@@ -1,5 +1,12 @@
 import { useRef, useState } from "react";
 import { Chip } from "./primitives";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const BACKEND_URL = "http://localhost:8000";
 
@@ -146,7 +153,13 @@ export function InputScreen({
 
   return (
     <div className="mx-auto w-full max-w-[680px] px-6 py-12">
-      <header className="text-center">
+      <header className="flex flex-col items-center text-center">
+        <img
+          src="/logo.jpg"
+          alt="FairLens Logo"
+          className="mb-5 h-20 w-20 rounded-full object-cover border-2 shadow-lg"
+          style={{ borderColor: "var(--border)" }}
+        />
         <h1
           className="text-[34px] font-medium leading-none tracking-tight"
           style={{ color: "var(--foreground)" }}
@@ -387,41 +400,41 @@ export function InputScreen({
       <div className="mt-6 grid grid-cols-2 gap-4">
         <div>
           <label className="fl-label-sm mb-2 block">Target level</label>
-          <select
-            value={level}
-            onChange={(e) => setLevel(e.target.value)}
-            className="w-full rounded-lg px-3 py-2.5 text-[13px] outline-none"
-            style={{
-              background: "var(--surface)",
-              border: "1px solid var(--border)",
-              color: "var(--foreground)",
-            }}
-          >
-            {["L3", "L4", "L5", "L6"].map((l) => (
-              <option key={l} value={l}>
-                {l}
-              </option>
-            ))}
-          </select>
+          <Select value={level} onValueChange={setLevel}>
+            <SelectTrigger className="w-full h-10 border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] text-[13px] rounded-lg cursor-pointer focus:ring-1 focus:ring-[var(--brand)]">
+              <SelectValue placeholder="Select level" />
+            </SelectTrigger>
+            <SelectContent className="border border-[var(--border)] bg-[var(--surface-elevated)] text-[var(--foreground)]">
+              {["L3", "L4", "L5", "L6"].map((l) => (
+                <SelectItem
+                  key={l}
+                  value={l}
+                  className="cursor-pointer text-[13px] focus:bg-[var(--brand-dim)] focus:text-[var(--foreground)]"
+                >
+                  {l}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div>
           <label className="fl-label-sm mb-2 block">Panel mode</label>
-          <select
-            value={mode}
-            onChange={(e) => setMode(e.target.value)}
-            className="w-full rounded-lg px-3 py-2.5 text-[13px] outline-none"
-            style={{
-              background: "var(--surface)",
-              border: "1px solid var(--border)",
-              color: "var(--foreground)",
-            }}
-          >
-            {["Balanced", "Technical-heavy", "Culture-heavy"].map((l) => (
-              <option key={l} value={l}>
-                {l}
-              </option>
-            ))}
-          </select>
+          <Select value={mode} onValueChange={setMode}>
+            <SelectTrigger className="w-full h-10 border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] text-[13px] rounded-lg cursor-pointer focus:ring-1 focus:ring-[var(--brand)]">
+              <SelectValue placeholder="Select mode" />
+            </SelectTrigger>
+            <SelectContent className="border border-[var(--border)] bg-[var(--surface-elevated)] text-[var(--foreground)]">
+              {["Balanced", "Technical-heavy", "Culture-heavy"].map((l) => (
+                <SelectItem
+                  key={l}
+                  value={l}
+                  className="cursor-pointer text-[13px] focus:bg-[var(--brand-dim)] focus:text-[var(--foreground)]"
+                >
+                  {l}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

@@ -20,18 +20,26 @@ export function FairLensSidebar({
         background: "color-mix(in oklab, var(--background) 92%, black)",
       }}
     >
-      <div>
-        <div
-          className="text-[16px] font-semibold tracking-tight"
-          style={{ color: "var(--foreground)" }}
-        >
-          Fair<span style={{ color: "var(--brand-glow)" }}>Lens</span>
-        </div>
-        <div
-          className="mt-1 text-[11px]"
-          style={{ color: "var(--text-muted)", letterSpacing: "0.06em" }}
-        >
-          5 DAYS OF GEN AI · GOOGLE × KAGGLE
+      <div className="flex items-center gap-3">
+        <img
+          src="/logo.jpg"
+          alt="FairLens Logo"
+          className="h-10 w-10 rounded-full object-cover border"
+          style={{ borderColor: "var(--border)" }}
+        />
+        <div>
+          <div
+            className="text-[16px] font-semibold tracking-tight leading-none"
+            style={{ color: "var(--foreground)" }}
+          >
+            Fair<span style={{ color: "var(--brand-glow)" }}>Lens</span>
+          </div>
+          <div
+            className="mt-1 text-[9px]"
+            style={{ color: "var(--text-muted)", letterSpacing: "0.05em" }}
+          >
+            5 DAYS OF GEN AI · GOOGLE × KAGGLE
+          </div>
         </div>
       </div>
 
