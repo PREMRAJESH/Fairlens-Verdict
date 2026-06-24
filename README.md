@@ -19,29 +19,7 @@ FairLens is an advanced, real-time AI-powered hiring evaluation simulator design
 
 FairLens uses a modern decoupled architecture. The frontend displays the live orchestration of the backend agent panel:
 
-```mermaid
-graph TD
-    User([User / Recruiter]) -->|Upload PDF Resume| Frontend[React 19 / TanStack Start Frontend]
-    Frontend -->|POST /parse-resume| Backend[FastAPI Server]
-    Backend -->|Extract PDF Text & Schema| Parser[Gemini Parsing Pipeline]
-    Parser -->|Structured JSON| Frontend
-    Frontend -->|POST /run Session| Backend
-    
-    subgraph Multi-Agent Panel (Google ADK)
-        Tech[TechnicalInterviewer Agent]
-        Culture[CultureFitAssessor Agent]
-        Seniority[SeniorityAssessor Agent]
-        Auditor[BiasAuditor Agent]
-        Synth[VerdictSynthesizer Agent]
-        
-        Tech & Culture & Seniority -->|Stream Transcript Chunks| Auditor
-        Auditor -->|Flag Bias & Provide Re-frame| Synth
-        Tech & Culture & Seniority & Auditor & Synth -->|Synthesized Output| Coordinator[Pipeline Runner]
-    end
-    
-    Coordinator -->|SSE Event Stream| Frontend
-    Frontend -->|Real-Time Rendering| User
-```
+![FairLens System Architecture](docs/system_architecture.jpg)
 
 ---
 
