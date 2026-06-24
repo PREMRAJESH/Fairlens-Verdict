@@ -9,7 +9,7 @@ export default defineConfig({
     tanstackStart({
       tsr: { appDirectory: "src" },
       // @ts-expect-error - preset is a valid Nitro option not in TanStack's types
-      server: { entry: "server", preset: "node-server" },
+      server: { entry: "server", preset: process.env.VERCEL ? "vercel" : "node-server" },
     }),
     react(),
     tsconfigPaths(),

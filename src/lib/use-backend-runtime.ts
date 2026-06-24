@@ -10,7 +10,7 @@ import type {
 } from "@/lib/fairlens-data";
 import { AGENT_BACKEND_TO_FRONTEND } from "@/lib/fairlens-data";
 
-const BACKEND_URL = "http://localhost:8000";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
 export type AgentRuntime = {
   rendered: TranscriptChunk[];
