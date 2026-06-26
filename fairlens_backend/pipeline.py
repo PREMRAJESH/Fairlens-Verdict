@@ -21,16 +21,27 @@ from models.provider import resolve_provider, gemini_available, grok_available, 
 
 logger = logging.getLogger("fairlens")
 
+# ParallelAgent: The HiringPanel runs all three assessor agents (Technical, Culture, Seniority)
+# concurrently and independently. This separation is critical: if they shared context or saw
+# each other's reasoning early, they would anchor on each other, defeating the purpose
+# of the independent panel and rendering the bias audit meaningless.
 panel = ParallelAgent(
     name="HiringPanel",
     sub_agents=[technical_interviewer, culture_assessor, seniority_assessor],
 )
 
+# SequentialAgent: The BiasAuditor MUST run and complete its task before the VerdictSynthesizer.
+# This ensures that the synthesizer receives a complete bias report (containing all flagged
+# reasoning) so it can accurately compare the raw and debiased verdicts side-by-side.
 post_panel = SequentialAgent(
     name="AuditAndSynthesize",
     sub_agents=[bias_auditor, verdict_synthesizer],
 )
 
+# full_pipeline wraps the parallel hiring panel and the sequential audit/synthesis steps
+# in a top-level SequentialAgent. This defines the two-phase lifecycle: first, the panel
+# runs to generate raw candidate assessments, then the audit/synthesis phase evaluates
+# those assessments for cognitive bias and produces the final recommendation.
 full_pipeline = SequentialAgent(
     name="BiasAuditorPanel",
     sub_agents=[panel, post_panel],
@@ -139,6 +150,10 @@ async def run_pipeline(
         session_id=session_id,
     )
 
+    # The Runner orchestrates the execution of full_pipeline. It runs async and generates
+    # events which are translated to Server-Sent Events (SSE) and streamed to the React frontend.
+    # The event stream handles partial results, token chunks, bias flags, and final summaries,
+    # enabling a live multi-agent interface that updates incrementally without blocking.
     runner = Runner(
         agent=full_pipeline,
         app_name="fairlens",
@@ -184,6 +199,8 @@ async def run_pipeline(
                             "corrective_reframe": args.get("corrective_reframe", ""),
                         }
                         store_flag(session_id, flag)
+                        # UI effect: A red/orange/yellow flag card slides in mid-transcript in the corresponding agent's column,
+                        # showing the severity, the quote, the bias explanation, and a suggested corrective reframe.
                         _emit({"type": "bias_flag", **flag})
 
             # agent_start on first event for each agent
@@ -191,6 +208,8 @@ async def run_pipeline(
                 author in PANEL_AGENTS | {"BiasAuditor", "VerdictSynthesizer"}
                 and author not in agent_started
             ):
+                # UI effect: Highlights the agent in the sidebar (making the status dot pulse) and makes a cursor blink
+                # in the agent's transcript column to show they have started reasoning.
                 _emit({"type": "agent_start", "agent": author})
                 agent_started.add(author)
 
@@ -206,6 +225,7 @@ async def run_pipeline(
                 if text_content:
                     transcript_buffers[author] += text_content
                     for chunk in _split_chunks(text_content):
+                        # UI effect: Appends the streaming transcript text chunk character-by-character to the active agent's column in real time.
                         _emit({
                             "type": "transcript_chunk",
                             "agent": author,
@@ -220,6 +240,7 @@ async def run_pipeline(
                             if just:
                                 pos["justification"] = just
                             parsed_verdicts[author] = pos
+                            # UI effect: Renders the parsed structured position (e.g. STRONG_HIRE, NO_HIRE) in the column footer for that panel agent.
                             _emit(pos)
 
             # agent_done via final response
@@ -231,13 +252,16 @@ async def run_pipeline(
                 if author in PANEL_AGENTS:
                     if not agent_done_flags.get(author, False):
                         agent_done_flags[author] = True
+                        # UI effect: The agent's status dot in the sidebar turns green (or orange for Auditor), indicating that agent has finished execution.
                         _emit({"type": "agent_done", "agent": author})
 
                 elif author == "BiasAuditor":
                     if not agent_done_flags.get(author, False):
                         agent_done_flags[author] = True
                         summary = get_auditor_summary(session_id)
+                        # UI effect: Draws the bias confidence ring, unlocks the auditor report tab, and populates the summary metrics (counts of flags, most flagged agent, etc.).
                         _emit({"type": "auditor_summary", **summary})
+                        # UI effect: The agent's status dot in the sidebar turns green, indicating they have completed their analysis.
                         _emit({"type": "agent_done", "agent": author})
 
                 elif author == "VerdictSynthesizer":
@@ -281,16 +305,20 @@ async def run_pipeline(
                                 "confidence_score": bias_summary["confidence_score"],
                             })
 
+                            # UI effect: Unlocks the final verdict tab in the UI, rendering the raw vs debiased verdict comparison chart and the final recommendation.
                             _emit({"type": "final_verdict", **verdict_json})
                         except (json.JSONDecodeError, Exception):
+                            # UI effect: Displays a red error toast or text in the UI to notify the user of a pipeline failure.
                             _emit({
                                 "type": "error",
                                 "message": "Failed to parse final verdict from synthesizer output",
                                 "agent": "VerdictSynthesizer",
                             })
 
+                        # UI effect: The agent's status dot in the sidebar turns green, indicating they have completed their analysis.
                         _emit({"type": "agent_done", "agent": author})
 
+        # UI effect: Confirms the entire multi-agent pipeline is complete, stopping the session timer and finalizing all active UI elements.
         _emit({"type": "done", "session_id": session_id})
 
     except Exception as exc:

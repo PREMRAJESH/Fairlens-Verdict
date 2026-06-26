@@ -131,7 +131,11 @@ Kicks off the multi-agent pipeline. Returns an SSE stream.
 | `error`            | `type, message, agent`                                                                                                        | Error event                                  |
 | `done`             | `session_id`                                                                                                                  | Pipeline complete                            |
 
-**Errors:** `409 Conflict` if session already running.
+**Errors:**
+* `400 Bad Request` — "Invalid session ID format" (when `session_id` does not match standard UUID v4 format).
+* `409 Conflict` — "Session already running" (when the session ID is already active).
+* `413 Payload Too Large` — "Candidate profile too large. Max 50KB." (when `candidate` JSON serialization exceeds 50,000 characters).
+* `503 Service Unavailable` — "Too many concurrent sessions. Try again shortly." (when the number of concurrent sessions is 10 or more).
 
 ---
 
@@ -305,12 +309,21 @@ XAI_API_KEY=<your_xai_grok_api_key>
 
 ## Running the Backend
 
+### Local Development Setup
 ```bash
 # From the fairlens_backend/ directory
 pip install -r requirements.txt
 uvicorn main:app --reload     # Dev server on http://localhost:8000
-uvicorn main:app              # Production server on http://localhost:8000
 ```
+
+### Production-Grade Containerized Setup (Docker Compose)
+A production-grade containerization environment is supported via Docker and Docker Compose. This packages the Python FastAPI backend into a clean lightweight container:
+```bash
+# From the project root directory
+docker compose up --build -d
+```
+
+The backend container compiles using [fairlens_backend/Dockerfile](file:///d:/New%20folder/Fairlens/fairlens_backend/Dockerfile) with a Python 3.11-slim base and exposes port `8000` to the host machine. A built-in health check executes every 30 seconds against the `GET /health` endpoint.
 
 ---
 
@@ -327,9 +340,26 @@ Agent name mapping: `TechnicalInterviewer → "technical"`, `CultureFitAssessor 
 
 ---
 
-## Error Handling
+## Security Features
 
-- **Dual provider fallback:** Gemini → Grok → error
-- **SSE error event:** `{"event": "error", "data": {"type": "...", "message": "...", "agent": "..."}}`
-- **HTTP errors:** 409 (conflict), 425 (too early), 404 (not found)
-- Error logs written to `backend_err.log`
+The backend implements the following security and rate-limiting measures to protect the LLM pipelines:
+- **UUID Format Validation**: Strict check rejecting non-UUID v4 format for `session_id` (`400 Bad Request`).
+- **Profile Size Limits**: Rejects payloads exceeding 50KB (`413 Payload Too Large`).
+- **Concurrency Rate Limiting**: Restricts simultaneous panel runs to 10. Excess sessions receive `503 Service Unavailable`.
+- **CORS Restricted**: Local host CORS configuration to secure endpoints.
+- **Ephemeral State**: Data is held completely in memory, and the active session is cleared as soon as a new run starts or the container/server restarts.
+
+---
+
+## Error Handling & Fallbacks
+
+- **Triple Provider Fallback Chain:** Gemini 2.5 Flash (ADK) → Grok grok-2-1212 → Groq llama-3.3-70b-versatile → error.
+- **SSE Error Propagation:** `{"type": "error", "message": "...", "agent": "..."}` is emitted over the SSE channel.
+- **HTTP Status Mapping:**
+  - `400` — Invalid request format (e.g. invalid UUID).
+  - `409` — Session already running.
+  - `413` — Input profile too large.
+  - `425` — Verdict report requested before run finishes.
+  - `404` — Session ID not found.
+  - `503` — Too many concurrent sessions.
+- Error logs are written to `backend_err.log`.

@@ -1,5 +1,10 @@
-from typing import Literal
+from typing import Literal, Optional
 
+# Why _store is a module-level singleton rather than passed as a parameter:
+# Since our agents and tools are orchestrated across different pipeline steps and providers,
+# storing session bias flags in a module-level dictionary allows decoupling state storage
+# from agent function signatures. This makes it easy to retrieve flags across agents
+# and endpoints in a stateless ASGI application.
 _store: dict[str, list[dict]] = {}
 
 
@@ -57,10 +62,23 @@ def get_auditor_summary(session_id: str, changed_from_raw: Optional[bool] = None
     sorted_types = sorted(type_counts, key=type_counts.get, reverse=True)
 
     total = len(flags)
+
+    # Why HIGH flags cost more than MEDIUM/LOW:
+    # Severity maps directly to the threat a bias pattern poses to objective assessment.
+    # HIGH severity flags (like pedigree bias causing instant rejection) represent critical
+    # flaws that completely derail hiring integrity, thus causing the largest deduction
+    # to confidence (15 points). MEDIUM (7 points) and LOW (3 points) are minor signals
+    # that represent smaller deviations.
     deduction = (high * 15) + (medium * 7) + (low * 3)
-    if changed_from_raw is False:
-        deduction = deduction * 0.5
-    score = int(max(20, 100 - deduction))
+
+    # Why the deduction penalty is halved when the raw verdict does not change after debiasing (not changed_from_raw):
+    # If the debiased verdict remains the same as the raw verdict (changed_from_raw is False/None),
+    # the panel's decision held up under scrutiny despite the presence of bias. Thus, the penalty is halved
+    # to reflect that the final recommendation was robust.
+    if not changed_from_raw:
+        deduction = int(deduction * 0.5)
+
+    confidence_score = int(max(20, 100 - deduction))
 
     return {
         "total_flags": total,
@@ -69,7 +87,7 @@ def get_auditor_summary(session_id: str, changed_from_raw: Optional[bool] = None
         "low_severity_count": low,
         "most_biased_agent": most_biased,
         "dominant_bias_types": sorted_types,
-        "confidence_score": min(score, 100),
+        "confidence_score": confidence_score,
         "auditor_summary_text": (
             f"Found {total} bias flag(s) across {len(agent_counts)} agent(s). "
             f"{most_biased} showed the most biased reasoning, "

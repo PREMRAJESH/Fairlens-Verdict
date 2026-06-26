@@ -12,6 +12,11 @@ import { AGENT_BACKEND_TO_FRONTEND } from "@/lib/fairlens-data";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
+const normalizeConfidence = (val: number): number => {
+  if (val <= 1) return Math.round(val * 100);
+  return Math.round(val);
+};
+
 export type AgentRuntime = {
   rendered: TranscriptChunk[];
   done: boolean;
@@ -90,27 +95,31 @@ export function useBackendRuntime() {
         break;
       }
       case "transcript_chunk": {
-        const panelAgents = [
+        const PANEL_AGENTS = [
           "TechnicalInterviewer",
           "CultureFitAssessor",
           "SeniorityAssessor",
         ];
-        if (!panelAgents.includes(data.agent as string)) {
-          break;
-        }
-        const agent = AGENT_BACKEND_TO_FRONTEND[data.agent as BackendAgentName];
-        if (!agent) break;
-        setRuntime((prev) => {
-          const cur = prev[agent];
-          const chunks = [...cur.rendered];
-          const last = chunks[chunks.length - 1];
-          if (last?.kind === "text") {
-            chunks[chunks.length - 1] = { kind: "text", text: last.text + (data.text as string) };
-          } else {
-            chunks.push({ kind: "text", text: data.text as string });
+        if (PANEL_AGENTS.includes(data.agent as string)) {
+          const agent = AGENT_BACKEND_TO_FRONTEND[data.agent as BackendAgentName];
+          if (agent) {
+            setRuntime((prev) => {
+              const cur = prev[agent];
+              const chunks = [...cur.rendered];
+              const last = chunks[chunks.length - 1];
+              if (last?.kind === "text") {
+                chunks[chunks.length - 1] = { kind: "text", text: last.text + (data.text as string) };
+              } else {
+                chunks.push({ kind: "text", text: data.text as string });
+              }
+              return { ...prev, [agent]: { ...cur, rendered: chunks } };
+            });
           }
-          return { ...prev, [agent]: { ...cur, rendered: chunks } };
-        });
+        }
+        // BiasAuditor and VerdictSynthesizer chunks
+        // are intentionally ignored here —
+        // their output is handled by dedicated events
+        // (bias_flag, auditor_summary, final_verdict)
         break;
       }
       case "agent_verdict": {
@@ -188,12 +197,29 @@ export function useBackendRuntime() {
         break;
       }
       case "auditor_summary": {
-        setAuditorSummary(data as unknown as AuditorSummaryData);
+        const summary = { ...(data as unknown as AuditorSummaryData) };
+        if (typeof summary.confidence_score === "number") {
+          summary.confidence_score = normalizeConfidence(summary.confidence_score);
+        }
+        setAuditorSummary(summary);
         setAgentStatuses((prev) => ({ ...prev, BiasAuditor: "done" }));
         break;
       }
       case "final_verdict": {
-        setFinalVerdict(data as unknown as FinalVerdictData);
+        const verdict = { ...(data as unknown as FinalVerdictData) };
+        if (verdict.bias_summary && typeof verdict.bias_summary.confidence_score === "number") {
+          verdict.bias_summary = {
+            ...verdict.bias_summary,
+            confidence_score: normalizeConfidence(verdict.bias_summary.confidence_score),
+          };
+        }
+        if (verdict.final_recommendation && typeof verdict.final_recommendation.confidence === "number") {
+          verdict.final_recommendation = {
+            ...verdict.final_recommendation,
+            confidence: normalizeConfidence(verdict.final_recommendation.confidence),
+          };
+        }
+        setFinalVerdict(verdict);
         setAgentStatuses((prev) => ({ ...prev, VerdictSynthesizer: "done" }));
         break;
       }

@@ -153,6 +153,23 @@ Resume text:
 async def run(request: RunRequest):
     session_id = request.session_id
 
+    # 1. UUID format validation on session_id
+    uuid_v4_regex = re.compile(
+        r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+        re.IGNORECASE
+    )
+    if not uuid_v4_regex.match(session_id):
+        raise HTTPException(status_code=400, detail="Invalid session ID format")
+
+    # 2. Candidate input size limit
+    candidate_json = request.candidate.model_dump_json()
+    if len(candidate_json) > 50000:
+        raise HTTPException(status_code=413, detail="Candidate profile too large. Max 50KB.")
+
+    # 3. Concurrent session limit
+    if len(_running) >= 10:
+        raise HTTPException(status_code=503, detail="Too many concurrent sessions. Try again shortly.")
+
     if session_id in _running:
         raise HTTPException(status_code=409, detail="Session already running")
 

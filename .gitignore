@@ -33,8 +33,14 @@ dist-ssr
 
 # Environment
 .env
+*.env
+fairlens_backend/.env
 .env.local
 .env.*.local
+
+# Python / Virtual Environment
+__pycache__/
+.venv/
 
 # Runtime logs
 stderr.txt

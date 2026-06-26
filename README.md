@@ -18,35 +18,7 @@ Built for **5 Days of Gen AI — Google × Kaggle** using **Google ADK** and **G
 
 ## How It Works
 
-```
-Candidate Profile (JSON or PDF Resume)
-         │
-         ▼
-┌─────────────────────────────────────┐
-│  ParallelAgent — HiringPanel        │
-│  Three agents run simultaneously    │
-│  No agent sees another's reasoning  │
-│                                     │
-│  Technical    Culture    Seniority  │
-│  Interviewer  Fit        Assessor   │
-└─────────────┬───────────────────────┘
-              │ all three transcripts
-              ▼
-┌─────────────────────────────────────┐
-│  BiasAuditor                        │
-│  Reads all transcripts              │
-│  Calls flag_bias() for each         │
-│  instance of cognitive bias found   │
-└─────────────┬───────────────────────┘
-              │ transcripts + bias report
-              ▼
-┌─────────────────────────────────────┐
-│  VerdictSynthesizer                 │
-│  Raw verdict vs Debiased verdict    │
-│  Removes flagged reasoning          │
-│  Produces final recommendation      │
-└─────────────────────────────────────┘
-```
+![FairLens System Architecture Flow](docs/system_architecture.jpg)
 
 ---
 
@@ -231,75 +203,111 @@ Fairlens/
 
 ### Prerequisites
 
-- Python 3.9+
+- Python 3.9+ (or Docker / Docker Compose)
 - Bun (or Node.js 18+)
 - Google AI Studio API key — [aistudio.google.com](https://aistudio.google.com)
 - Optional: xAI API key for Grok fallback
 - Optional: Groq API key for Groq fallback
 
-### 1. Clone the repository
+---
 
-```bash
-git clone https://github.com/your-username/fairlens.git
-cd fairlens
-```
+### Option A: Docker Compose (Production-Grade & Recommended)
 
-### 2. Backend environment
+This builds and orchestrates both the Python FastAPI backend and the Bun React frontend with optimal container boundaries.
 
-Create `fairlens_backend/.env`:
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/your-username/fairlens.git
+   cd fairlens
+   ```
 
-```env
-GOOGLE_API_KEY=your_google_api_key_here
-GOOGLE_GENAI_USE_VERTEXAI=FALSE
+2. **Configure environment variables**:
+   Create `fairlens_backend/.env` (using `.env.example` as a template):
+   ```bash
+   cp .env.example fairlens_backend/.env
+   ```
+   Open `fairlens_backend/.env` and enter your API keys.
 
-# Optional fallbacks
-XAI_API_KEY=your_xai_api_key_here
-GROQ_API_KEY=your_groq_api_key_here
-```
+3. **Launch the services**:
+   ```bash
+   docker compose up --build -d
+   ```
+   This will spin up the backend (port 8000) with automatic health-checking and the frontend (port 5173).
 
-### 3. Backend setup
+4. **Verify Health**:
+   ```bash
+   curl http://localhost:8000/health
+   # Returns: { "status": "ok" }
+   ```
 
-```bash
-cd fairlens_backend
+---
 
-# Create and activate virtual environment
-python -m venv ../.venv
+### Option B: Local Virtual Environment Setup (Development)
 
-# Windows
-..\.venv\Scripts\Activate.ps1
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/your-username/fairlens.git
+   cd fairlens
+   ```
 
-# macOS / Linux
-source ../.venv/bin/activate
+2. **Backend environment**:
+   Create `fairlens_backend/.env`:
+   ```env
+   GOOGLE_API_KEY=your_google_api_key_here
+   GOOGLE_GENAI_USE_VERTEXAI=FALSE
+   
+   # Optional fallbacks
+   XAI_API_KEY=your_xai_api_key_here
+   GROQ_API_KEY=your_groq_api_key_here
+   ```
 
-# Install dependencies
-pip install -r requirements.txt
+3. **Backend setup**:
+   ```bash
+   cd fairlens_backend
+   
+   # Create and activate virtual environment
+   python -m venv ../.venv
+   
+   # Windows
+   ..\.venv\Scripts\Activate.ps1
+   
+   # macOS / Linux
+   source ../.venv/bin/activate
+   
+   # Install dependencies
+   pip install -r requirements.txt
+   
+   # Verify installation
+   python -c "import google.adk; print('ADK ready')"
+   python -c "import fitz; print('PyMuPDF ready')"
+   
+   # Start the backend server
+   uvicorn main:app --reload --port 8000
+   ```
+   Backend runs at `http://localhost:8000`
 
-# Start the backend server
-uvicorn main:app --reload --port 8000
-```
+4. **Frontend setup**:
+   Open a new terminal in the project root:
+   ```bash
+   # Install dependencies
+   bun install
+   
+   # Start the development server
+   bun run dev
+   ```
+   Frontend runs at `http://localhost:5173`
 
-Backend runs at `http://localhost:8000`
+---
 
-### 4. Frontend setup
+## Production Security & Limits
 
-Open a new terminal in the project root:
+The application includes built-in security features to protect API integrity and prevent resource exhaustion:
 
-```bash
-# Install dependencies
-bun install
-
-# Start the development server
-bun run dev
-```
-
-Frontend runs at `http://localhost:5173`
-
-### 5. Verify
-
-```bash
-curl http://localhost:8000/health
-# { "status": "ok" }
-```
+- **UUID v4 format validation** on `session_id`: Any `POST /run` with a non-UUID v4 format is rejected (`400 Bad Request`).
+- **Candidate profile size limit**: Candidate profiles exceeding 50KB are rejected (`413 Payload Too Large`).
+- **Concurrent session limit**: Up to 10 concurrent pipeline runs are allowed. Excess sessions receive `503 Service Unavailable`.
+- **CORS restrictions**: Access is restricted strictly to local dev origins in development.
+- **Data persistence**: Ephemeral, in-memory state storage. No candidate data or transcripts are stored in databases.
 
 ---
 
