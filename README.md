@@ -18,7 +18,7 @@ Built for **5 Days of Gen AI — Google × Kaggle** using **Google ADK** and **G
 
 ## How It Works
 
-![FairLens System Architecture Flow](docs/system_architecture.jpg)
+![FairLens System Architecture Flow](docs/how_it_works.jpg)
 
 ---
 
@@ -216,6 +216,7 @@ Fairlens/
 This builds and orchestrates both the Python FastAPI backend and the Bun React frontend with optimal container boundaries.
 
 1. **Clone the repository**:
+
    ```bash
    git clone https://github.com/your-username/fairlens.git
    cd fairlens
@@ -223,15 +224,19 @@ This builds and orchestrates both the Python FastAPI backend and the Bun React f
 
 2. **Configure environment variables**:
    Create `fairlens_backend/.env` (using `.env.example` as a template):
+
    ```bash
    cp .env.example fairlens_backend/.env
    ```
+
    Open `fairlens_backend/.env` and enter your API keys.
 
 3. **Launch the services**:
+
    ```bash
    docker compose up --build -d
    ```
+
    This will spin up the backend (port 8000) with automatic health-checking and the frontend (port 5173).
 
 4. **Verify Health**:
@@ -245,6 +250,7 @@ This builds and orchestrates both the Python FastAPI backend and the Bun React f
 ### Option B: Local Virtual Environment Setup (Development)
 
 1. **Clone the repository**:
+
    ```bash
    git clone https://github.com/your-username/fairlens.git
    cd fairlens
@@ -252,49 +258,54 @@ This builds and orchestrates both the Python FastAPI backend and the Bun React f
 
 2. **Backend environment**:
    Create `fairlens_backend/.env`:
+
    ```env
    GOOGLE_API_KEY=your_google_api_key_here
    GOOGLE_GENAI_USE_VERTEXAI=FALSE
-   
+
    # Optional fallbacks
    XAI_API_KEY=your_xai_api_key_here
    GROQ_API_KEY=your_groq_api_key_here
    ```
 
 3. **Backend setup**:
+
    ```bash
    cd fairlens_backend
-   
+
    # Create and activate virtual environment
    python -m venv ../.venv
-   
+
    # Windows
    ..\.venv\Scripts\Activate.ps1
-   
+
    # macOS / Linux
    source ../.venv/bin/activate
-   
+
    # Install dependencies
    pip install -r requirements.txt
-   
+
    # Verify installation
    python -c "import google.adk; print('ADK ready')"
    python -c "import fitz; print('PyMuPDF ready')"
-   
+
    # Start the backend server
    uvicorn main:app --reload --port 8000
    ```
+
    Backend runs at `http://localhost:8000`
 
 4. **Frontend setup**:
    Open a new terminal in the project root:
+
    ```bash
    # Install dependencies
    bun install
-   
+
    # Start the development server
    bun run dev
    ```
+
    Frontend runs at `http://localhost:5173`
 
 ---
