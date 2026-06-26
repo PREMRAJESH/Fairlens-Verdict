@@ -2,11 +2,34 @@
 
 > **AI that checks its own blind spots.**
 
+[![Python](https://img.shields.io/badge/Python-3.11-blue?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![React](https://img.shields.io/badge/React-19-blue?style=flat-square&logo=react&logoColor=white)](https://react.dev)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![Google ADK](https://img.shields.io/badge/Google_ADK-Framework-orange?style=flat-square)](https://google.github.io/adk-docs/)
+[![Gemini 2.5 Flash](https://img.shields.io/badge/Gemini_2.5_Flash-LLM-purple?style=flat-square)](https://deepmind.google/technologies/gemini/)
+[![Docker](https://img.shields.io/badge/Docker-Supported-blue?style=flat-square&logo=docker&logoColor=white)](https://docker.com)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](https://opensource.org/licenses/MIT)
+
 FairLens is a multi-agent AI system that simulates a hiring panel and audits the panel's own reasoning for cognitive bias in real time. Three expert agents evaluate a candidate simultaneously. A fourth agent watches their reasoning and flags bias the moment it appears — inline, mid-sentence, before any verdict is reached. A fifth agent synthesizes a final debiased recommendation.
 
 The gap between the raw panel verdict and the debiased verdict is the product.
 
 Built for **5 Days of Gen AI — Google × Kaggle** using **Google ADK** and **Gemini 2.5 Flash**.
+
+---
+
+## Demo
+
+🎥 **YouTube Demo:**
+(coming soon)
+
+💻 **GitHub Repository:**
+[https://github.com/PREMRAJESH/fairlens-verdict](https://github.com/PREMRAJESH/fairlens-verdict)
+
+🐳 **Docker Deployment:**
+```bash
+docker compose up --build
+```
 
 ---
 
