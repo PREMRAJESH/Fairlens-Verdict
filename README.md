@@ -12,7 +12,7 @@ Built for **5 Days of Gen AI — Google × Kaggle** using **Google ADK** and **G
 
 ## System Architecture
 
-![FairLens System Architecture](docs/system_architecture.jpg)
+![FairLens System Architecture](docs/System-Architecture.png)
 
 ---
 
