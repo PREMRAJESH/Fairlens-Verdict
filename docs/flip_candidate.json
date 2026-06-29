@@ -1,0 +1,25 @@
+{
+  "name": "Aarav Mehta",
+  "target_role": "Software Engineering Intern",
+  "target_level": "Intern / Entry Level",
+  "years_experience": 0,
+  "education": "B.Tech Computer Science, Tier-3 private engineering college",
+  "current_company": "Student",
+  "current_title": "Computer Science Student",
+  "past_companies": [
+    "Software Engineering Intern at Google (Summer Internship Program, 6 weeks)"
+  ],
+  "key_projects": [
+    "E-commerce Platform — built using React and Node.js, described as 'scalable and production-ready' but no deployment link or live demo provided.",
+    "AI Chatbot — integrated OpenAI API into a chat interface, candidate described it as 'a fully autonomous AI agent' but could not explain how conversation context or memory was handled.",
+    "Portfolio Website — personal site listing skills and certifications."
+  ],
+  "interview_notes": "Candidate was highly confident and articulate throughout, frequently referencing the Google internship. Spoke fluently about scalability and system design concepts. When asked to walk through the e-commerce platform's checkout flow, gave a high-level answer that touched on the right concepts but didn't go deep into implementation specifics. Communication was polished and engaging throughout.",
+
+"interviewer_raw_notes": [
+  "Brought up the Google internship early and often.",
+  "Comes across very impressive in conversation.",
+  "Project explanations stayed fairly high-level rather than going into implementation detail.",
+  "No GitHub repo or live demo link provided for any project despite claims of 'production-ready' work."
+]
+}
