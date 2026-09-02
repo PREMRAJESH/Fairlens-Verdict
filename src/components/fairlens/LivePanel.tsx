@@ -1,8 +1,13 @@
-import { useRef, useEffect } from "react";
-import { AGENTS, type AgentKey, type TranscriptChunk, type AgentStatus } from "@/lib/fairlens-data";
+import { useRef, useEffect, useMemo } from "react";
+import { AGENTS, type AgentKey, type TranscriptChunk, type AgentStatus, type FinalVerdictData } from "@/lib/fairlens-data";
 import type { AgentRuntime } from "@/lib/use-backend-runtime";
 import { Chip, InlineFlag, VerdictBadge } from "./primitives";
 import { formatElapsed } from "@/lib/use-scenario-runtime";
+import {
+  stripThinkBlocks,
+  resetThinkState,
+  markdownToHtml,
+} from "@/lib/markdown";
 
 export function LivePanel({
   runtime,
@@ -17,9 +22,9 @@ export function LivePanel({
   runtime: Record<AgentKey, AgentRuntime>;
   elapsedMs: number;
   error: string | null;
-  provider: "gemini" | "grok" | null;
+  provider: "gemini" | "grok" | "groq" | null;
   agentStatuses: Record<string, AgentStatus>;
-  finalVerdict: unknown;
+  finalVerdict: FinalVerdictData | null;
   onSeeReport: () => void;
   onBack: () => void;
 }) {
@@ -39,7 +44,7 @@ export function LivePanel({
         >
           {provider && (
             <Chip tone={provider === "gemini" ? "brand" : "medium"}>
-              {provider === "gemini" ? "Gemini 2.5 Flash" : "Grok 2"}
+              {provider === "gemini" ? "Gemini 2.5 Flash" : provider === "groq" ? "Groq" : "Grok 2"}
             </Chip>
           )}
           {error ? (
@@ -115,6 +120,7 @@ export function LivePanel({
             agent={agent}
             runtime={runtime[agent]}
             agentStatus={agentStatuses[AGENTS[agent].backendName]}
+            provider={provider}
           />
         ))}
       </div>
@@ -126,10 +132,12 @@ function AgentColumn({
   agent,
   runtime,
   agentStatus,
+  provider,
 }: {
   agent: AgentKey;
   runtime: AgentRuntime;
   agentStatus?: AgentStatus;
+  provider?: "gemini" | "grok" | "groq" | null;
 }) {
   const meta = AGENTS[agent];
   const rendered = runtime.rendered;
@@ -141,6 +149,28 @@ function AgentColumn({
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
+  }, [rendered]);
+
+  // Process rendered chunks through think-block stripper
+  const processedChunks = useMemo(() => {
+    const result: TranscriptChunk[] = [];
+    let thinkState = resetThinkState();
+
+    for (const chunk of rendered) {
+      if (chunk.kind === "flag") {
+        result.push(chunk);
+        continue;
+      }
+
+      const { cleaned, state } = stripThinkBlocks(chunk.text, thinkState);
+      thinkState = state;
+
+      if (cleaned.trim()) {
+        result.push({ kind: "text", text: cleaned });
+      }
+    }
+
+    return result;
   }, [rendered]);
 
   return (
@@ -160,7 +190,7 @@ function AgentColumn({
           className="mt-1.5 flex items-center gap-2 text-[11.5px]"
           style={{ color: "var(--text-muted)" }}
         >
-          <span>Gemini 2.5 Flash</span>
+          <span>{provider === "groq" ? "Groq" : provider === "grok" ? "Grok 2" : "Gemini 2.5 Flash"}</span>
           {agent === "technical" && (
             <>
               <span>·</span>
@@ -172,7 +202,7 @@ function AgentColumn({
 
       {/* transcript */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-5">
-        {rendered.length === 0 && !runtime.done ? (
+        {processedChunks.length === 0 && !runtime.done ? (
           <div
             className="flex items-center gap-2 text-[12.5px]"
             style={{ color: "var(--text-muted)" }}
@@ -184,12 +214,12 @@ function AgentColumn({
             queued…
           </div>
         ) : (
-          <div className="fl-transcript">
-            {rendered.map((c, i) => renderChunk(c, i))}
+          <div className="fl-transcript fl-agent-output">
+            {processedChunks.map((c, i) => renderChunk(c, i))}
             {isRunning && lastIsText && <span className="fl-cursor" />}
           </div>
         )}
-        {rendered.length === 0 && runtime.done && (
+        {processedChunks.length === 0 && runtime.done && (
           <div className="text-[12.5px]" style={{ color: "var(--text-muted)" }}>
             No transcript
           </div>
@@ -210,15 +240,26 @@ function AgentColumn({
 }
 
 function renderChunk(chunk: TranscriptChunk, key: number) {
-  if (chunk.kind === "text") return <span key={key}>{chunk.text}</span>;
+  if (chunk.kind === "flag") {
+    return (
+      <InlineFlag
+        key={key}
+        severity={chunk.severity}
+        biasType={chunk.biasType}
+        quote={chunk.quote}
+        explain={chunk.explain}
+        correctiveReframe={chunk.correctiveReframe}
+      />
+    );
+  }
+
+  // Render markdown as HTML
+  const html = markdownToHtml(chunk.text);
   return (
-    <InlineFlag
+    <div
       key={key}
-      severity={chunk.severity}
-      biasType={chunk.biasType}
-      quote={chunk.quote}
-      explain={chunk.explain}
-      correctiveReframe={chunk.correctiveReframe}
+      className="fl-md-output"
+      dangerouslySetInnerHTML={{ __html: html }}
     />
   );
 }

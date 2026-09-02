@@ -6,7 +6,7 @@ export function FairLensSidebar({
   agentStatuses,
   biasFlags,
 }: {
-  provider: "gemini" | "grok" | null;
+  provider: "gemini" | "grok" | "groq" | null;
   agentStatuses: Record<string, AgentStatus>;
   biasFlags: BiasFlag[];
 }) {
