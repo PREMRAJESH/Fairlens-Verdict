@@ -18,6 +18,10 @@ from tools.flag_bias import store_flag, get_auditor_summary, clear_session
 
 logger = logging.getLogger("fairlens")
 
+# Groq qwen/qwen3.6-27b has an 8000 TPM input limit per request.
+# We must keep all requests safely under this threshold.
+MAX_INPUT_TOKENS = 6500  # target buffer for safety
+
 client = AsyncOpenAI(
     api_key=GROQ_API_KEY,
     base_url="https://api.groq.com/openai/v1",
@@ -64,6 +68,48 @@ BIAS_FUNCTIONS = [
 ]
 
 
+def _compress_candidate(candidate_json: str) -> str:
+    """Extract only essential fields from candidate JSON to reduce token count.
+
+    Keeps: name, target_role, target_level, years_experience, education,
+    current_company, current_title, past_companies, key_projects (capped at 3).
+    Removes: interview_notes, interviewer_raw_notes, and verbose fields.
+    """
+    try:
+        data = json.loads(candidate_json)
+        if not isinstance(data, dict):
+            return candidate_json[:2000]
+
+        compressed = {
+            "name": data.get("name", ""),
+            "target_role": data.get("target_role", ""),
+            "target_level": data.get("target_level", ""),
+            "years_experience": data.get("years_experience", 0),
+            "education": data.get("education", ""),
+            "current_company": data.get("current_company", ""),
+            "current_title": data.get("current_title", ""),
+            "past_companies": data.get("past_companies", [])[:5],
+            "key_projects": [
+                p if isinstance(p, str) else json.dumps(p)
+                for p in data.get("key_projects", [])[:3]
+            ],
+        }
+        return json.dumps(compressed, separators=(",", ":"))
+    except (json.JSONDecodeError, TypeError):
+        return candidate_json[:2000]
+
+
+def _summarize_transcripts(transcripts: str, max_chars: int = 3000) -> str:
+    """Truncate combined transcripts to fit within token budget.
+
+    Keeps the most recent/relevant content by trimming from the start.
+    """
+    if len(transcripts) <= max_chars:
+        return transcripts
+    # Keep the last max_chars (most recent reasoning is usually most relevant)
+    return "..." + transcripts[-(max_chars - 3):]
+
+
 async def _call_agent(
     system_prompt: str,
     user_message: str,
@@ -89,6 +135,7 @@ async def _call_agent(
             tools=tools,
             tool_choice="auto",
             stream=False,
+            max_tokens=1500,
         )
 
         msg = response.choices[0].message
@@ -122,6 +169,7 @@ async def _call_agent(
                 model=GROQ_MODEL,
                 messages=messages,
                 stream=False,
+                max_tokens=1500,
             )
             msg = response.choices[0].message
 
@@ -139,6 +187,7 @@ async def _call_agent(
             model=GROQ_MODEL,
             messages=messages,
             stream=True,
+            max_tokens=1500,
         )
 
         async for chunk in stream:
@@ -225,6 +274,9 @@ async def run_groq_pipeline(
         sse_queue.put_nowait({"type": "pipeline_start", "provider": "groq"})
 
         # --- Panel agents (Technical, Culture, Seniority) ---
+        # Compress candidate JSON to essential fields only (stay under 8000 TPM)
+        compressed_candidate = _compress_candidate(candidate_json)
+
         panel_specs = [
             ("TechnicalInterviewer", TECHNICAL_SYSTEM_PROMPT),
             ("CultureFitAssessor", CULTURE_SYSTEM_PROMPT),
@@ -234,7 +286,7 @@ async def run_groq_pipeline(
         for agent_name, sys_prompt in panel_specs:
             text = await _call_agent(
                 system_prompt=sys_prompt,
-                user_message=f"Evaluate this candidate:\n\n{candidate_json}",
+                user_message=f"Evaluate this candidate:\n\n{compressed_candidate}",
                 agent_name=agent_name,
                 session_id=session_id,
                 sse_queue=sse_queue,
@@ -250,15 +302,17 @@ async def run_groq_pipeline(
                 sse_queue.put_nowait(pos)
 
         # --- Bias Auditor ---
+        # Summarize transcripts to stay under token limit
         combined_transcripts = "\n\n".join(
             f"[{name} transcript]:\n{panel_transcripts.get(name, '')}"
             for name in ["TechnicalInterviewer", "CultureFitAssessor", "SeniorityAssessor"]
         )
+        summarized_transcripts = _summarize_transcripts(combined_transcripts, max_chars=2500)
 
         auditor_prompt = AUDITOR_SYSTEM_PROMPT_TEMPLATE.format(target_level=target_level)
         await _call_agent(
             system_prompt=auditor_prompt,
-            user_message=f"Panel transcripts to audit for bias:\n\n{combined_transcripts}",
+            user_message=f"Panel transcripts to audit for bias:\n\n{summarized_transcripts}",
             agent_name="BiasAuditor",
             session_id=session_id,
             sse_queue=sse_queue,
@@ -271,9 +325,18 @@ async def run_groq_pipeline(
 
         # --- Verdict Synthesizer ---
         bias_report = get_auditor_summary(session_id)
+        # Use summarized transcripts + compressed bias report to stay under token limit
+        compressed_bias_report = {
+            "total_flags": bias_report.get("total_flags", 0),
+            "high_severity_count": bias_report.get("high_severity_count", 0),
+            "medium_severity_count": bias_report.get("medium_severity_count", 0),
+            "low_severity_count": bias_report.get("low_severity_count", 0),
+            "most_biased_agent": bias_report.get("most_biased_agent", ""),
+            "dominant_bias_types": bias_report.get("dominant_bias_types", []),
+        }
         synthesizer_input = (
-            f"Panel transcripts:\n\n{combined_transcripts}\n\n"
-            f"Bias audit report:\n{json.dumps(bias_report, indent=2)}"
+            f"Panel transcripts:\n\n{summarized_transcripts}\n\n"
+            f"Bias audit report:\n{json.dumps(compressed_bias_report, separators=(',', ':'))}"
         )
 
         synth_buffer: list[str] = []
