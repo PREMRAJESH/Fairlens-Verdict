@@ -10,7 +10,9 @@ import type {
 } from "@/lib/fairlens-data";
 import { AGENT_BACKEND_TO_FRONTEND } from "@/lib/fairlens-data";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL =
+  import.meta.env.VITE_BACKEND_URL ||
+  (import.meta.env.DEV ? "http://localhost:8000" : "");
 
 const normalizeConfidence = (val: number): number => {
   if (val <= 1) return Math.round(val * 100);
@@ -333,7 +335,7 @@ export function useBackendRuntime() {
             err.message.toLowerCase().includes("err_connection")
           ) {
             setError(
-              "Cannot connect to FairLens backend at localhost:8000. Make sure the Python server is running: cd fairlens_backend && uvicorn main:app --reload",
+              "Cannot connect to FairLens backend. Check that the backend is running and VITE_BACKEND_URL is configured correctly.",
             );
           } else {
             setError(err.message);

@@ -8,7 +8,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL =
+  import.meta.env.VITE_BACKEND_URL ||
+  (import.meta.env.DEV ? "http://localhost:8000" : "");
 
 const EMPTY_TEMPLATE = {
   name: "Candidate name",
@@ -138,7 +140,7 @@ export function InputScreen({
       setTimeout(() => textareaRef.current?.focus(), 100);
     } catch {
       setPdfError(
-        "Cannot reach backend at localhost:8000 — make sure the Python server is running.",
+        "Cannot reach backend — check that the backend is running and VITE_BACKEND_URL is configured correctly.",
       );
     } finally {
       setUploading(false);
