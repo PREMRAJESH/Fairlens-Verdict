@@ -8,9 +8,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const BACKEND_URL =
-  import.meta.env.VITE_BACKEND_URL ||
-  (import.meta.env.DEV ? "http://localhost:8000" : "");
+const BACKEND_URL = (() => {
+  if (import.meta.env.VITE_BACKEND_URL) return import.meta.env.VITE_BACKEND_URL;
+  if (import.meta.env.DEV) return "http://localhost:8000";
+  throw new Error(
+    "Backend URL is not configured. Set VITE_BACKEND_URL in the Vercel Production environment and redeploy.",
+  );
+})();
 
 const EMPTY_TEMPLATE = {
   name: "Candidate name",
