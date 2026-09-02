@@ -5,7 +5,7 @@ logger = logging.getLogger("fairlens")
 
 GEMINI_MODEL = "gemini-2.5-flash"
 GROK_MODEL = "grok-2-1212"
-GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_MODEL = "qwen/qwen3.6-27b"
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
 XAI_API_KEY = os.getenv("XAI_API_KEY", "")
